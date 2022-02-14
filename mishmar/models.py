@@ -218,7 +218,7 @@ class ValidationLog(models.Model):
         verbose_name = "בדיקת נשקים"
         verbose_name_plural = "בדיקות נשקים"
 
-# TODO
+
 class Arming_Log(models.Model):
     date = models.DateField(default=timezone.now, verbose_name="תאריך", blank=False)
     data = JSONField()
@@ -233,7 +233,6 @@ class Arming_Log(models.Model):
         verbose_name = "הזנה ביומן חימוש"
         verbose_name_plural = "הזנות ביומן חימוש"
 
-# TODO
 class ArmingRequest(models.Model):
     log = models.ForeignKey(Arming_Log, on_delete=models.CASCADE, verbose_name="הזנה ביומן חימוש", blank=False)
     input_num = models.IntegerField(verbose_name="מספר הזנה", blank=False, default=1)

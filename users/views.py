@@ -97,12 +97,18 @@ def profile(request):
         u_form = UserUpdateForm(request.POST, instance=request.user)
         user_settings.language = request.POST.get("languages")
         if u_form.is_valid():
+            email = u_form.cleaned_data.get("email")
+            if User.objects.filter(email=email).count() > 0:
+                    if request.user != User.objects.filter(email=email).first():
+                        messages.warning(request, f'כתובת דואר אלקטרוני קיימת כבר')
+                        return redirect("profile")
             u_form.save()
             user_settings.save()
             messages.success(request, f'פרטים עודכנו')
             return redirect("profile")
         else:
             messages.warning(request, f'פרטים לא עודכנו')
+            messages.warning(request, u_form.errors)
             return redirect("profile")
     else:
         u_form = UserUpdateForm(instance=request.user)
@@ -111,15 +117,46 @@ def profile(request):
         "night": user_settings.night,
         "sat_night": user_settings.sat_night,
         "sat_morning": user_settings.sat_morning,
-        "sat_noon": user_settings.sat_noon,
         "language": user_settings.language
     }
     return render(request, "users/profile.html", context)
 
 
+class UserPasswordUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = User
+    fields = ['password']
+    template_name = 'users/password_change.html'
+    success_url = '/'
+
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user == self.get_object()
+    
+    def get_context_data(self, **kwargs):
+        ctx = super(UserPasswordUpdateView, self).get_context_data(**kwargs)
+        ctx['user1'] = self.get_object()
+        ctx['user1s'] = USettings.objects.all().filter(user=self.get_object()).first()
+        return ctx
+    
+    def post(self, request, *args, **kwargs):
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        if password1 == password2:
+            if re.fullmatch(r'[A-Za-z0-9@#$%^&+=]{8,}', password1):
+                user = self.get_object()
+                user.set_password(password1)
+                user.save()
+                messages.success(request, f'סיסמא עודכנה')
+                return redirect('/')
+            else:
+                messages.warning(request, "סיסמא חייבת להכיל לפחות שמונה תווים מתוכן לפחות אחד מהאותיות האנגליות ומספרים")
+                return HttpResponseRedirect(request.path_info)
+        else:
+            messages.warning(request, 'סיסמאות לא תואמות')
+            return HttpResponseRedirect(request.path_info)
+
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = User
-    queryset = User.objects.all().exclude(username='admin').exclude(username='metagber')
+    queryset = User.objects.all().exclude(username='admin')
     template_name = 'users/user_list.html'
     context_object_name = 'users'
     ordering = ['id']
@@ -139,32 +176,35 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 User.objects.filter(id=id).delete()
                 messages.success(request, f'משתמש נמחק')
                 return redirect("user-list")
+            elif 'password' in request.POST:
+                id = request.POST.get("password")
+                return redirect("password-change", id)
             elif 'change' in request.POST:
                 id = request.POST.get("change")
                 user = User.objects.filter(id=id).first()
                 username = request.POST.get(f"username{id}")
                 if User.objects.filter(username=username).count() > 0:
-                    if User.objects.filter(username=username).count() == 1:
+                    if user != User.objects.filter(username=username).first():
                         messages.warning(request, f'שם משתמש קיים כבר')
                         return redirect("user-list")
-                    messages.warning(request, f'שם משתמש קיים כבר')
-                    return redirect("user-list")
                 elif re.match(r'^[a-zA-Z0-9_.-]+$', username) == None:
                     messages.warning(request, f'שם משתמש לא תקין')
                     return redirect("user-list")
                 user.username = username
                 email = request.POST.get(f"email{id}")
                 if User.objects.filter(email=email).count() > 0:
-                    messages.warning(request, f'כתובת דואר אלקטרוני קיימת כבר')
-                    return redirect("user-list")
+                    if user != User.objects.filter(email=email).first():
+                        messages.warning(request, f'כתובת דואר אלקטרוני קיימת כבר')
+                        return redirect("user-list")
                 user.email = email
                 user.first_name = request.POST.get(f"first{id}")
                 user.last_name = request.POST.get(f"last{id}")
                 user_settings = USettings.objects.all().filter(user=user).first()
                 nickname = request.POST.get(f"nickname{id}")
                 if USettings.objects.filter(nickname=nickname).count() > 0:
-                    messages.warning(request, f'כינוי קיים כבר')
-                    return redirect("user-list")
+                    if user_settings != USettings.objects.filter(nickname=nickname).first():
+                        messages.warning(request, f'כינוי קיים כבר')
+                        return redirect("user-list")
                 user_settings.nickname = nickname
                 if request.POST.get(f"staff{id}") != None:
                     user.groups.add(Group.objects.get(name='staff'))
@@ -179,6 +219,48 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 messages.success(request, f'משתמש שונה')
                 return redirect("user-list")
         return redirect("user-list")
+
+
+class QualityUserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = USettings
+    queryset = USettings.objects.all().exclude(user__username='admin').exclude(user__username='metagber')
+    template_name = 'users/quality_user_list.html'
+    context_object_name = 'users'
+    ordering = ['id']
+
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def post(self, request, *args, **kwargs):
+        if 'reset' in request.POST:
+            users = USettings.objects.all().exclude(user__username='admin').exclude(user__username='metagber')
+            for user in users:
+                id = user.id
+                user.night = 0
+                user.sat_night = 0
+                user.sat_morning = 0
+                user.fri_noon = 0
+                user.save()
+            messages.success(request, f'איכויות אופסו')
+            return redirect("quality-list")
+        else:
+            users = USettings.objects.all().exclude(user__username='admin').exclude(user__username='metagber')
+            for user in users:
+                id = user.id
+                user.night = request.POST.get(f"night{id}")
+                print(request.POST.get(f"night{id}"))
+                print(user)
+                user.sat_night = request.POST.get(f"sat_night{id}")
+                user.sat_morning = request.POST.get(f"sat_morning{id}")
+                user.fri_noon = request.POST.get(f"fri_noon{id}")
+                if request.POST.get(f"sat{id}") == 'on':
+                    user.sat = True
+                else:
+                    user.sat = False
+                user.save()
+            messages.success(request, f'נתונים עודכנו')
+            return redirect("quality-list")
+
 
 @register_tag.filter
 def isStaff(user):

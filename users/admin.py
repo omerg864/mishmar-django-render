@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 class ProfileAdmin(admin.ModelAdmin):
     actions = None
     list_display = ('user', "name", 'nickname', 'sat',
-                    'night', 'sat_night', 'sat_morning', 'sat_noon', 'language')
-    list_editable = ('nickname', 'sat', 'night', 'sat_night', 'sat_morning', 'sat_noon', 'language')
+                    'night', 'sat_night', 'sat_morning', 'language')
+    list_editable = ('nickname', 'sat', 'night', 'sat_night', 'sat_morning', 'language')
     search_fields = ['=user__username', ]
 
     def name(self, obj):

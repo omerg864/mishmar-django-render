@@ -11,6 +11,8 @@ urlpatterns = [
     path('profile/', user_views.profile, name="profile"),
     path('login/', user_views.login, name="login"),
     path('user/list', user_views.UserListView.as_view(), name="user-list"),
+    path('quality/list/', user_views.QualityUserListView.as_view(), name="quality-list"),
+    path('password/change/<int:pk>/', user_views.UserPasswordUpdateView.as_view(), name="password-change"),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name="logout"),
     path('password-reset/',
          auth_views.PasswordResetView.as_view(template_name='users/password_reset.html'),

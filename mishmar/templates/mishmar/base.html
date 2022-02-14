@@ -34,7 +34,7 @@
                 {% endif %}
                 <a  class="nav-item nav-link" href="{% url 'armingday' year='today'|getday|date:'Y' month='today'|getday|date:'b'|getmonth day='today'|getday|date:'d' %}">יומן חימוש</a>
                 {% endif %}
-                {% if user.is_staff %}
+                {% if request.user.is_staff %}
                     <a  class="nav-item nav-link" href="{% url 'staff-panel' %}">לוח מנהל</a>
                 {% endif %}
             </div>

@@ -29,7 +29,7 @@
         <td><input type="email" required name="email{{user.id}}" id="email{{user.id}}" value="{{user.email}}" ></td>
         <td><input type="checkbox" name="manager{{user.id}}" id="manager{{user.id}}" {% if user|isManager %}checked {% endif %}></td>
         <td><input type="checkbox" name="staff{{user.id}}" id="staff{{user.id}}" {% if user|isStaff %}checked {% endif %}></td>
-        <td><button type="submit" name="change" value="{{user.id}}"class="btn btn-secondary">איפוס סיסמה</button></td>
+        <td><button type="submit" name="password" value="{{user.id}}"class="btn btn-secondary">איפוס סיסמה</button></td>
         <td><button type="submit" name="change" value="{{user.id}}"class="btn btn-primary">שינוי</button></td> 
         <td><button type="submit" name="delete" value="{{ user.id}}" class="btn btn-danger">מחיקה</button></td>
     </tr>

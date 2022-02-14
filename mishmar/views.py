@@ -690,7 +690,7 @@ class ValidationLogMonthView(LoginRequiredMixin, UserPassesTestMixin, MonthArchi
     ordering = ["date"]
 
     def test_func(self):
-        return self.request.user.is_staff
+        return isStaff(self.request.user)
 
 # Arming log month view
 class ArmingPersonalMonthView(LoginRequiredMixin, MonthArchiveView):
@@ -740,7 +740,7 @@ class GunListView(LoginRequiredMixin,UserPassesTestMixin, ListView):
     context_object_name = "guns"
 
     def test_func(self):
-        return self.request.user.is_staff
+        return isStaff(self.request.user)
 
     def get_context_data(self, **kwargs):
         ctx = super(GunListView, self).get_context_data(**kwargs)
@@ -896,9 +896,7 @@ class ServedSumListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     paginate_by = 5
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
 
 
 # View to staff member to edit shifts served 
@@ -988,7 +986,7 @@ class OrganizationDetailView(LoginRequiredMixin, DetailView, UserPassesTestMixin
     template_name = "mishmar/organization-detail.html"
 
     def test_func(self):
-        return self.request.user.is_staff
+        return isStaff(self.request.user)
     
     def get_context_data(self, **kwargs):
         ctx = super(OrganizationDetailView, self).get_context_data(**kwargs)
@@ -1018,9 +1016,7 @@ class OrganizationCreateView(LoginRequiredMixin, CreateView, UserPassesTestMixin
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
 
     def form_valid(self, form):
         form.instance.date = self.request.POST.get("date")
@@ -1116,9 +1112,7 @@ class ShifttableView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
 
 
 # View to show staff member shift reinforcements served
@@ -1263,9 +1257,7 @@ class ServedSumReinforcementsDetailView(LoginRequiredMixin, UserPassesTestMixin,
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
 
     def post(self, request, *args, **kwargs):
         if request.method == "POST":
@@ -1292,9 +1284,7 @@ class ServedSumShiftDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
 
     def post(self, request, *args, **kwargs):
         if request.method == "POST":
@@ -1612,9 +1602,7 @@ class OrganizationSuggestionView(LoginRequiredMixin, UserPassesTestMixin, Detail
         return served, notes
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
 
 
 # Staff member panel View
@@ -1691,9 +1679,7 @@ class PostCreateView(CreateView, UserPassesTestMixin, LoginRequiredMixin):
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
     
     def post(self, request, *args, **kwargs):
         new_post = Post()
@@ -1719,9 +1705,7 @@ class PostUpdateView(UpdateView, UserPassesTestMixin, LoginRequiredMixin):
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
     
     def post(self, request, *args, **kwargs):
         if "delete" in request.POST:
@@ -1745,9 +1729,7 @@ class PostListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     ordering = ["-date"]
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
 
 class EventCreateView(CreateView, UserPassesTestMixin, LoginRequiredMixin):
     model = Event
@@ -1767,9 +1749,7 @@ class EventCreateView(CreateView, UserPassesTestMixin, LoginRequiredMixin):
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
     
     def post(self, request, *args, **kwargs):
         new_event = Event()
@@ -1799,9 +1779,7 @@ class EventUpdateView(UpdateView, UserPassesTestMixin, LoginRequiredMixin):
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
     
     def post(self, request, *args, **kwargs):
         if 'delete' in request.POST:
@@ -1836,9 +1814,7 @@ class EventListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
     
     def post(self, request, *args, **kwargs):
         if "new" in request.POST:
@@ -1875,9 +1851,7 @@ class IpBanListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
         return ctx
 
     def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        return False
+        return isStaff(self.request.user)
     
     def post(self, request, *args, **kwargs):
         if 'delete' in request.POST:
@@ -2879,6 +2853,10 @@ def validation_log_check(log, shift):
             if log.name_checked_n != "" and log.name_checked_n != None:
                 return True
     return False
+
+@register.filter
+def isStaff(user):
+    return user.groups.filter(name='staff').exists()
 
 @register.filter
 def is_manager(user):

@@ -8,11 +8,11 @@
             <thead>
                 <tr>
                     <th style="width:74%">שעות החודש</th>
-                    <th>{{object_list|gethours:user}} שעות</th>
+                    <th>{{object_list|gethours:request.user}} שעות</th>
                 </tr>
                 <tr>
                     <th style="width:74%">כמות משמרות</th>
-                    <th>{{object_list|countshifts:user}}</th>
+                    <th>{{object_list|countshifts:request.user}}</th>
                 </tr>
                 </thead>
         </table>
@@ -55,7 +55,7 @@
             <tbody>
                 <form method="POST">
                     {% csrf_token %}
-                {% for arming in object_list|merge_user:user|object_list_cutter:reqtype %}
+                {% for arming in object_list|merge_user:request.user|object_list_cutter:reqtype %}
             <tr style="align-content: end">
                 <td>{{arming.shift_num|num_to_shift}}</td>
                 <td>{{arming.date|date:"d/m/Y"}}</td>

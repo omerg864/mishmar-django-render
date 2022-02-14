@@ -16,7 +16,7 @@
           </div>
         </div>
     <div dir="rtl" style="margin-right: 1.5em">
-        {% if user.is_authenticated %}
+        {% if request.user.is_authenticated %}
             <div style="align-items: end">
         <legend style="align-content: right" >היי {{ user.first_name }},</legend>
             </div>
@@ -27,7 +27,7 @@
               <a class="text-muted mr-2" style="margin-left: 15px">{{ post.username|get_user_name }}</a>
                     </div>
                     <div>
-            <h2><a class="article-title" {% if user.is_staff %} href="{% url 'post-update' post.id %}" {% endif %}>{{ post.title }}</a></h2>
+            <h2><a class="article-title" {% if request.user|isStaff %} href="{% url 'post-update' post.id %}" {% endif %}>{{ post.title }}</a></h2>
                         </div>
                     <div>
             <p class="article-content">{{ post.text }}</p>

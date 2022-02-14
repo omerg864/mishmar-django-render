@@ -117,7 +117,8 @@ def profile(request):
         "night": user_settings.night,
         "sat_night": user_settings.sat_night,
         "sat_morning": user_settings.sat_morning,
-        "language": user_settings.language
+        "language": user_settings.language,
+        'fri_noon': user_settings.fri_noon,
     }
     return render(request, "users/profile.html", context)
 
@@ -129,7 +130,7 @@ class UserPasswordUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView
     success_url = '/'
 
     def test_func(self):
-        return self.request.user.is_staff or self.request.user == self.get_object()
+        return isStaff(self.request.user) or self.request.user == self.get_object()
     
     def get_context_data(self, **kwargs):
         ctx = super(UserPasswordUpdateView, self).get_context_data(**kwargs)
@@ -162,7 +163,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     ordering = ['id']
 
     def test_func(self):
-        return self.request.user.is_staff
+        return isStaff(self.request.user)
     
     def get_context_data(self, **kwargs):
         ctx = super(UserListView, self).get_context_data(**kwargs)
@@ -229,7 +230,7 @@ class QualityUserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     ordering = ['id']
 
     def test_func(self):
-        return self.request.user.is_staff
+        return isStaff(self.request.user)
     
     def post(self, request, *args, **kwargs):
         if 'reset' in request.POST:

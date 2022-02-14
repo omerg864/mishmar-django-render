@@ -10,7 +10,7 @@
         <div id="error-frame">
             <div class="container">
                 <h1>404</h1>
-                {% if user.is_authenticated %}
+                {% if request.user.is_authenticated %}
                 <h4>העמוד לא נמצא</h4>
                 <p>העמוד לא נמצא, עדיף להמשיך לעמוד הבית.</p>
                 <div class="btn">

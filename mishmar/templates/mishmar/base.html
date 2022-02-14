@@ -27,27 +27,27 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav ">
-              {% if user.is_authenticated %}
-              {% if user.username != 'metagber' %}
-              <a style="margin-right: 0.5em" class="nav-item nav-link" href="{% url 'Serve' %}">{{ user|get_base_string:"1" }}</a>
-                <a  class="nav-item nav-link" href="{% url 'Organization' %}">{{ user|get_base_string:"2" }}</a>
+              {% if request.user.is_authenticated %}
+              {% if request.user.username != 'metagber' %}
+              <a style="margin-right: 0.5em" class="nav-item nav-link" href="{% url 'Serve' %}">{{ request.user|get_base_string:"1" }}</a>
+                <a  class="nav-item nav-link" href="{% url 'Organization' %}">{{ request.user|get_base_string:"2" }}</a>
                 {% endif %}
                 <a  class="nav-item nav-link" href="{% url 'armingday' year='today'|getday|date:'Y' month='today'|getday|date:'b'|getmonth day='today'|getday|date:'d' %}">יומן חימוש</a>
                 {% endif %}
-                {% if request.user.is_staff %}
+                {% if request.user|isStaff %}
                     <a  class="nav-item nav-link" href="{% url 'staff-panel' %}">לוח מנהל</a>
                 {% endif %}
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav mr-auto">
-                {% if user.is_authenticated %}
-                {% if user.username != 'metagber' %}
-                    <a class="nav-item nav-link" href="{% url 'profile' %}">{{ user|get_base_string:"6" }}</a>
+                {% if request.user.is_authenticated %}
+                {% if request.user.username != 'metagber' %}
+                    <a class="nav-item nav-link" href="{% url 'profile' %}">{{ request.user|get_base_string:"6" }}</a>
                     {% endif %}
-                    <a class="nav-item nav-link" href="{% url 'logout' %}">{{ user|get_base_string:"7" }}</a>
+                    <a class="nav-item nav-link" href="{% url 'logout' %}">{{ request.user|get_base_string:"7" }}</a>
                  {% else %}
-                    <a class="nav-item nav-link" href="{% url 'login' %}">{{ user|get_base_string:"8" }}</a>
-                    <a class="nav-item nav-link" href="{% url 'register' %}">{{ user|get_base_string:"9" }}</a>
+                    <a class="nav-item nav-link" href="{% url 'login' %}">{{ request.user|get_base_string:"8" }}</a>
+                    <a class="nav-item nav-link" href="{% url 'register' %}">{{ request.user|get_base_string:"9" }}</a>
                 {% endif %}
             </div>
           </div>

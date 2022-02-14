@@ -10,7 +10,7 @@
          <div style="display: flex;
          flex-direction: row; justify-content: space-between">
          <a class="">{{today|date:"d/m/Y H:i"}}</a>
-         <a>{{user.first_name}} {{user.last_name}}</a>
+         <a>{{request.user.first_name}} {{request.user.last_name}}</a>
         </div>
     <form method="POST">
         {% csrf_token %}

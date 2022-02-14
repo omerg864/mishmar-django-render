@@ -15,13 +15,13 @@ def send_number_served(sender, instance, created, **kwargs):
     if created:
         lenShifts = len(Shift.objects.all().filter(date=instance.date))
         shifts = Shift.objects.all().filter(date=instance.date)
-        users = User.objects.all()
+        users = User.objects.all().exclude('metagber').exclude('admin')
         guards_sent = []
         guards_not_sent = []
-        admin_user = ""
+        emails = []
         for user in users:
-            if user.is_superuser:
-                admin_user = user
+            if user.groups.filter(name="staff").exists():
+                emails.append(user.email)
         for s in shifts:
             user = users.filter(username=s.username).first()
             user_settings = USettings.objects.all().filter(user=user).first()
@@ -42,7 +42,7 @@ def send_number_served(sender, instance, created, **kwargs):
                 'כמות משתמשים שהגישו סידור',
                 message,
                 os.environ.get("DEFAULT_FROM_EMAIL_RAMLA"),
-                [admin_user.email],
+                emails,
                 fail_silently=False,
             )
             print("sent")

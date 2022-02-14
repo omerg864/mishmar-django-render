@@ -1,0 +1,39 @@
+{% extends "mishmar/base.html" %}
+<html dir = rtl>
+{% block content %}
+{% if view_type == 'create' %}
+     <h1>יצירת פוסט חדש</h1>
+     {% else %}
+     <h1>עריכת פוסט</h1>
+{% endif %}
+     <div class="content-section">
+         <div style="display: flex;
+         flex-direction: row; justify-content: space-between">
+         <a class="">{{today|date:"d/m/Y H:i"}}</a>
+         <a>{{user.first_name}} {{user.last_name}}</a>
+        </div>
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <p>כותרת</p>
+        {{ form.title }}
+            </div>
+            <div>
+            <p>תוכן פוסט</p>
+        <textarea id="text" name="text" style="width: 500px; height: 200px"  >{% if view_type == "update" %} {{ text }} {% endif %}</textarea>
+        </div>
+        <div class="row" style="display: flex;
+        flex-direction: row; justify-content: space-around">
+        <div class="form-group">
+            <div class="con2 buttons">
+      <button name="chnge/add" class="but effect01" type="submit">{% if view_type == "create" %}<span>הוסף</span> {% else %} <span>שנה</span> {% endif %}</button>
+    
+    </div>
+        </div>
+        {% if view_type == "update" %}
+      <button class="btn btn-danger" id="delete" name="delete" style="height: 40px; margin-top: 48px">מחק פוסט</button>
+      {% endif %}
+    </div>
+    </form>
+</div>
+{% endblock content %}

@@ -1,0 +1,107 @@
+{% extends "mishmar/base.html" %}
+<html dir = rtl>
+{% block content %}
+    <div >
+        <h1>לוח מנהל</h1>
+          <div class="content-section" >
+            <form method="POST">
+                {% csrf_token %}
+            <div style="margin-bottom: 1em; margin-right: 8px; flex: 1; display: flex; justify-content: center">
+                <div style="margin-top: 8px;">
+                    <a>ניתן להגיש/לשנות הגשות:</a>
+                </div>
+                <div class="toggle-button-cover">
+  <div class="button-cover">
+<div class="button r" id="button-3">
+    {% if not checked %}
+  <input onChange="this.form.submit()" type="checkbox" class="checkbox" value="True" name="serv" checked>
+    {% else %}
+    <input onChange="this.form.submit()" type="checkbox" class="checkbox" value="True" name="serv">
+    {% endif %}
+  <div class="knobs"></div>
+  <div class="layer"></div>
+</div>
+  </div>
+</div>
+            </div>
+            </form>
+            <legend class="border-bottom mb-4">ניהול אתר</legend>
+            <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
+                <div style="margin-right: 0.5em">
+        <h3><a class="article-title" href="{% url 'Settings' %}">הגדרות</a></h3>
+                    </div>
+            <h4 style="margin-right: 1em">|</h4>
+                <div style="margin-right: 1em; margin-left: 1em">
+                    <h3><a class="article-title"  href="{% url 'admin:index' %}">ניהול נתונים</a></h3>
+                    </div>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: center">
+          <div style="margin-right: 1em; margin-left: 1em">
+            <h3><a class="article-title"  href="{% url 'data-usage' %}">כמות נתונים</a></h3>
+            </div>
+        </div>
+            <legend class="border-bottom mb-4">ניהול סידור</legend>
+            <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
+                    <div style="margin-right: 0.5em">
+            <h3><a class="article-title" href="{% url 'Served-sum' %}">סידורים</a></h3>
+                        </div>
+                <h4 style="margin-right: 1em">|</h4>
+                    <div style="margin-right: 1em; margin-left: 1em">
+                        <h3><a class="article-title" href="{% url 'organization-design' %}">מבנה סידור</a></h3>
+                        </div>
+            </div>
+            <legend class="border-bottom mb-4">ניהול משתמשים</legend>
+            <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
+                    <div style="margin-right: 0.5em">
+            <h3><a class="article-title" href="{% url 'user-list' %}">משתמשים</a></h3>
+                        </div>
+            </div>
+            <legend class="border-bottom mb-4">ניהול יומן חימוש</legend>
+            <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
+                    <div style="margin-right: 0.5em">
+            <h3><a class="article-title" href="{% url 'armingmonth-all' year=year month=today|date:'b' %}">יומן חימוש חודשי</a></h3>
+                        </div>
+                <h4 style="margin-right: 1em">|</h4>
+                    <div style="margin-right: 1em; margin-left: 1em">
+                        <h3><a class="article-title" href="{% url 'gun-list' %}">אקדחים</a></h3>
+                        </div>
+            </div>
+            <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
+              <div style="margin-right: 0.5em">
+      <h3><a class="article-title" href="{% url 'validation-month' year=year month=today|date:'b'|getmonth %}">החתמות נשקים</a></h3>
+                  </div>
+          <h4 style="margin-right: 1em">|</h4>
+              <div style="margin-right: 1em; margin-left: 1em">
+                  <h3><a class="article-title" href="{% url 'arming-requests-list' %}">בקשות שינוי</a></h3>
+                  </div>
+      </div>
+            <legend class="border-bottom mb-4">ניהול אירועים</legend>
+            <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
+                    <div style="margin-right: 0.5em">
+            <h3><a class="article-title" href="{% url 'event-list' %}">אירועים</a></h3>
+                        </div>
+                <h4 style="margin-right: 1em">|</h4>
+                    <div style="margin-right: 1em; margin-left: 1em">
+                        <h3><a class="article-title" href="{% url 'event-new' %}">אירוע חדש</a></h3>
+                        </div>
+            </div>
+            <legend class="border-bottom mb-4">ניהול פוסטים</legend>
+            <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
+                    <div style="margin-right: 0.5em">
+            <h3><a class="article-title" href="{% url 'post-list' %}">פוסטים</a></h3>
+                        </div>
+                <h4 style="margin-right: 1em">|</h4>
+                    <div style="margin-right: 1em; margin-left: 1em">
+                        <h3><a class="article-title" href="{% url 'post-new' %}">פוסט חדש</a></h3>
+                        </div>
+            </div>
+            <legend class="border-bottom mb-4">ניהול חסימות</legend>
+            <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
+                    <div style="margin-right: 0.5em">
+            <h3><a class="article-title" href="{% url 'ipban-list' %}">כתובות IP</a></h3>
+                        </div>
+            </div>
+    </div>
+    </div>
+
+{% endblock content %}

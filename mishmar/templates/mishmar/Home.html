@@ -1,0 +1,45 @@
+{% extends "mishmar/base.html" %}
+<html dir = rtl>
+{% block content %}
+    <main role="main" class="container" dir="rtl">
+      <div dir="rtl" class="row">
+    <div dir="rtl">
+          <div dir="rtl" class="content-section">
+            <h3 dir="rtl">מזג האוויר</h3>
+            <a dir="rtl">מזג האוויר עכשיו ב{{ city }}</a>
+              <ul class="list-group" dir="rtl" style="align-content: right">
+              {% for item in weather %}
+                <li class="list-group-item list-group-item-light" dir="rtl">{{ item }}: {{ weather|get_item:item }}</li>
+              {% endfor %}
+              </ul>
+            </p>
+          </div>
+        </div>
+    <div dir="rtl" style="margin-right: 1.5em">
+        {% if user.is_authenticated %}
+            <div style="align-items: end">
+        <legend style="align-content: right" >היי {{ user.first_name }},</legend>
+            </div>
+            {% for post in posts %}
+                <article class="content-section">
+                <div class="row border-bottom" style="margin-left: 3px; margin-right: 3px; margin-bottom: 7px">
+                    <small class="text-muted mr-2" style="margin-left: 20em; align-items: end">{{ post.date|date:"d/m/Y H:i" }}</small>
+              <a class="text-muted mr-2" style="margin-left: 15px">{{ post.username|get_user_name }}</a>
+                    </div>
+                    <div>
+            <h2><a class="article-title" {% if user.is_staff %} href="{% url 'post-update' post.id %}" {% endif %}>{{ post.title }}</a></h2>
+                        </div>
+                    <div>
+            <p class="article-content">{{ post.text }}</p>
+                </div>
+        </article>
+            {% endfor %}
+        {% else %}
+            <h1>היי אורח,</h1>
+            <p>התחבר כדי להמשיך.</p>
+        {% endif %}
+    </div>
+      </div>
+    </main>
+
+{% endblock content %}

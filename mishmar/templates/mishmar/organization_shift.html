@@ -1,0 +1,68 @@
+{% extends "mishmar/base.html" %}
+{% block content %}
+
+<ul style="padding-left: 100px; padding-right: 10px">
+        <h1>מבנה סידור</h1> 
+        <div class="row" style="margin-right: 0px;">
+            <div>
+        <form method="POST">
+            {% csrf_token %}
+        <button class="but effect01" type="submit" name="view_org"><span>תצוגת סידור</span></button>
+    </form>
+</div>
+</div>
+        <table class="responsive-table-input-matrix" style="align-items: center">
+            <thead>
+            <tr>
+                <th>סוג משמרת</th>
+                <th>מס"ד</th>
+                <th>כותרת</th>
+                <th>תת כותרת</th>
+                <th>פתיחה</th>
+                <th>אחמ"ש</th>
+                <th>משיכה</th>
+                <th>שינוי</th>
+            </tr>
+            </thead>
+            <tbody>
+                <form method="POST">
+                    {% csrf_token %}
+                <tr style="align-content: end">
+                    <td><select name="shift_num" id="shift_num">
+                        <option value="1">בוקר</option>
+                        <option value="2">צהריים</option>
+                        <option value="3">לילה</option>
+                        <option value="4">אחר</option>
+                    </select></td>
+                    <td><input type="number" name="index_num" id="index_num" min="1" required style="width:100px;"></td>
+                    <td><input type="text" name="title" id="title" required style="width:100px;"></td>
+                    <td><input type="text" name="sub_title" id="sub_title" style="width:100px;"></td>
+                    <td><input type="checkbox" name="opening" id="opening" ></td>
+                    <td><input type="checkbox" name="manager" id="manager" ></td>
+                    <td><input type="checkbox" name="pull" id="pull" ></td>
+                    <td style="padding-top:20px;"><button class="btn btn-info mb-4" type="submit" name="add" id="add">הוספה</button></td>
+                </tr>
+                </form>
+                <form method="POST">
+                    {% csrf_token %}
+                {% for shift in shifts %} 
+            <tr style="align-content: end">
+                <td><select name="shift_num{{shift.id}}" id="shift_num{{shift.id}}">
+                    <option value="1" {% if shift.shift_num == 1 %} selected {% endif %}>בוקר</option>
+                    <option value="2" {% if shift.shift_num == 2 %} selected {% endif %}>צהריים</option>
+                    <option value="3" {% if shift.shift_num == 3 %} selected {% endif %}>לילה</option>
+                    <option value="4" {% if shift.shift_num == 4 %} selected {% endif %}>אחר</option>
+                </select></td>
+                <td><input type="number" name="index_num{{shift.id}}" id="index_num{{shift.id}}" min="1" required style="width:100px;" value="{{ shift.index }}"></td>
+                <td><input type="text" name="title{{shift.id}}" id="title{{shift.id}}" required style="width:100px;" value="{{ shift.title }}"></td>
+                <td><input type="text" name="sub_title{{shift.id}}" id="sub_title{{shift.id}}" style="width:100px;" {% if shift.sub_title != None %} value="{{ shift.sub_title }}" {% endif %}></td>
+                <td><input type="checkbox" name="opening{{shift.id}}" id="opening{{shift.id}}" {% if shift.opening %} checked {% endif %}></td>
+                <td><input type="checkbox" name="manager{{shift.id}}" id="manager{{shift.id}}" {% if shift.manager %} checked {% endif %}></td>
+                <td><input type="checkbox" name="pull{{shift.id}}" id="pull{{shift.id}}" {% if shift.pull %} checked {% endif %}></td>
+                <td style="padding-top:20px;"><button class="btn btn-info mb-4" type="submit" value="{{shift.id}}" name="change" id="change">שינוי</button></td>
+            </tr>
+            {% endfor %}
+        </form>
+            </tbody>
+        </table>
+{% endblock content %}

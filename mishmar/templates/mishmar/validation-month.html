@@ -1,0 +1,74 @@
+{% extends "mishmar/base.html" %}
+{% block content %}
+
+<ul>
+    <h1>יומן  החתמות נשקים חודשי - {{ month|date:"m/Y" }}</h1>
+
+    {% for log in object_list %}
+    <table class="responsive-table-input-matrix" style="align-items: center">
+        <thead>
+        <tr>
+            <th>{{ log.date|date:"d/m/Y" }}</th>
+            </tr>
+        </thead>
+        </table>
+        <table class="responsive-table-input-matrix" style="align-items: center">
+            <thead>
+            <tr>
+                <th>משמרת</th>
+                <th>מספר נשקים בכספת</th>
+                <th>מספר נשקים במשמרת</th>
+                <th>שעה</th>
+                <th>שם אחמ"ש</th>
+                <th>חתימה</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% if log.name_checked_m != "" and log.name_checked_m != None %}
+            <tr style="align-content: end">
+                <td>בוקר</td>
+                <td>{{log.num_guns_safe_m}}</td>
+                <td>{{log.num_guns_shift_m}}</td>
+                <td>{{log.time_checked_m|timestr}}</td>
+                <td>{{log.name_checked_m}}</td>
+                <td><img src="{{log.sig_m}}" width="100px"/></td>
+            </tr>
+            {% endif %}
+            {% if log.name_checked_a != "" and log.name_checked_a != None %}
+            <tr style="align-content: end">
+                <td>צהריים</td>
+                <td>{{log.num_guns_safe_a}}</td>
+                <td>{{log.num_guns_shift_a}}</td>
+                <td>{{log.time_checked_a|timestr}}</td>
+                <td>{{log.name_checked_a}}</td>
+                <td><img src="{{log.sig_a}}" width="100px"/></td>
+            </tr>
+            {% endif %}
+            {% if log.name_checked_n != "" and log.name_checked_n != None %}
+            <tr style="align-content: end">
+                <td>לילה</td>
+                <td>{{log.num_guns_safe_n}}</td>
+                <td>{{log.num_guns_shift_n}}</td>
+                <td>{{log.time_checked_n|timestr }}</td>
+                <td>{{log.name_checked_n}}</td>
+                <td><img src="{{log.sig_n}}" width="100px"/></td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+        {% endfor %}
+</ul>
+<div >
+    <ul>
+        {% if previous_month %}
+                <a class="btn btn-info mb-4" href="{% url 'validation-month' year=previous_month|date:'Y' month=previous_month|date:'b'|getmonth %}" style="margin-top: 10px;">
+                    חודש שעבר
+                </a>
+        {% endif %}
+        {% if next_month %}
+                <a class="btn btn-info mb-4" href="{% url 'validation-month' year=next_month|date:'Y' month=next_month|date:'b'|getmonth %}" style="margin-top: 10px;">
+                    חודש הבא</a>
+        {% endif %}
+    </ul>
+</div>
+{% endblock content %}

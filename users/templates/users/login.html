@@ -1,0 +1,40 @@
+{% extends "mishmar/base.html" %}
+{% load crispy_forms_tags %}
+<html dir = rtl>
+{% block content %}
+        <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">התחבר</legend>
+                <div style="margin-bottom: 1em">
+                        <div>
+                            <a>שם משתמש</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ form.username }}
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1em">
+                        <div>
+                            <a>סיסמה</a>
+                        </div>
+                        <div style="padding: 10px">
+                            <input type="password" name="password" id="password" placeholder="סיסמה" required>
+                        </div>
+                    </div>
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">התחבר</button>
+                <small class="text-muted ml-2">
+                    <a href="{% url 'password_reset' %}">שכחת סיסמה?</a>
+                </small>
+            </div>
+        </form>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                לא נרשמת? <a class="ml-2" href="{% url 'register' %}">הירשם</a>
+            </small>
+        </div>
+    </div>
+{% endblock content %}

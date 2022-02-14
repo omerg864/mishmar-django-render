@@ -1,0 +1,48 @@
+{% extends "mishmar/base.html" %}
+{% block content %}
+     <div>
+        <h3 style="align-items: center">סידור לדוגמה בין תאריך {{ days|first|date:"d.m" }} לתאריך {{ days|last|date:"d.m" }}</h3>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+            <button type="submit" name="back" id="back" class="btn btn-secondary">➜  חזרה לעריכה</button>
+        </form>
+    <div class="content-section row">
+        <div style="margin-right: 1em">
+<table class="responsive-table-input-matrix" style="align-items: center; margin-left: 10px">
+		<thead>
+        <tr>
+			<th>תאריך</th>
+            {% for day in days %}
+                <th>{{ day|date:"d.m" }}</th>
+                {% endfor %}
+		</tr>
+		<tr>
+			<th></th>
+			<th>ראשון</th>
+			<th>שני</th>
+			<th>שלישי</th>
+			<th>רביעי</th>
+			<th>חמישי</th>
+			<th>שישי</th>
+			<th>שבת</th>
+		</tr>
+		</thead>
+		<tbody>
+        {% for key in shifts %}
+        <tr style="align-content: end">
+            <td>{{ key.title }} <br> {% if key.sub_title != None %} {{key.sub_title}} {%endif %}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% endfor %}
+		</tbody>
+	</table>
+            </div>
+    </div>
+{% endblock content %}

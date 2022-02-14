@@ -1,0 +1,41 @@
+{% extends "mishmar/base.html" %}
+{% block content %}
+    <div class="row" style="margin-bottom: 7px;">
+    <h1 >פוסטים:</h1>
+    </div>
+    {% for post in posts %}
+                <article class="content-section">
+                <div class="row border-bottom" style="margin-left: 3px; margin-right: 3px; margin-bottom: 7px">
+                    <small class="text-muted mr-2" style="margin-left: 20em; align-items: end">{{ post.date|date:"d/m/Y H:i" }}</small>
+              <a class="text-muted mr-2" style="margin-left: 15px">{{ post.username|get_user_name }}</a>
+                    </div>
+                    <div>
+            <h2><a class="article-title" href="{% url 'post-update' post.id %}">{{ post.title }}</a></h2>
+                        </div>
+                    <div>
+            <p class="article-content">{{ post.text }}</p>
+                </div>
+        </article>
+            {% endfor %}
+    {% if is_paginated %}
+
+      {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info mb-4" href="?page=1">ראשון</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">קודם</a>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">הבא</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">אחרון</a>
+      {% endif %}
+
+    {% endif %}
+{% endblock content %}

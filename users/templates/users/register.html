@@ -1,0 +1,117 @@
+{% extends "mishmar/base.html" %}
+{% load crispy_forms_tags %}
+<html dir=rtl xmlns="http://www.w3.org/1999/html">
+{% block content %}
+    {% if ban %}
+         <div class="content-section">
+         <legend >נחסמת מהרשמה. אם זו טעות נא לפנות למנהל האתר</legend>
+         </div>
+    {% else %}
+        <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">הירשם</legend>
+                <div style="margin-bottom: 1em">
+                        <div>
+                            <a>שם משתמש</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ form.username }}
+                        </div>
+                    <div>
+                        <small class="text-muted">
+                       • מקסימום 150 אותיות. ניתן להשתמש באותיות מספרים וסמלים אלה: @/./-/+/_ בלבד.
+                     </small>
+                    </div>
+                    </div>
+                    <div style="margin-bottom: 1em">
+                        <div>
+                            <a>שם פרטי</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ form.first_name }}
+                        </div>
+                        <div>
+                        <small class="text-muted">
+                       • בעברית.
+                     </small>
+                    </div>
+                    </div>
+                    <div style="margin-bottom: 1em">
+                        <div >
+                            <a >שם משפחה</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ form.last_name }}
+                        </div>
+                        <div>
+                        <small class="text-muted">
+                       • בעברית.
+                     </small>
+                    </div>
+                    </div>
+                    <div style="margin-bottom: 1em">
+                        <div>
+                            <a >אימייל</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ form.email }}
+                        </div>
+                    </div>
+                <div style="margin-bottom: 1em">
+                        <div>
+                            <a>סיסמה</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ form.password1 }}
+                        </div>
+                    <div>
+                        <small class="text-muted">
+                       • הסיסמה חייבת להכיל לפחות 8 תווים.
+                     </small>
+                        <br>
+                        <small class="text-muted">
+                       • הסיסמה לא יכולה להיות רק ממספרים.
+                     </small>
+                    </div>
+                    </div>
+                <div style="margin-bottom: 1em">
+                        <div>
+                            <a>הזן סיסמה שוב</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ form.password2 }}
+                        </div>
+                    <div>
+                        <small class="text-muted">
+                            • הכנס את אותה סיסמה שוב לצורך וידוי.
+                     </small>
+                    </div>
+                    </div>
+                <div style="margin-bottom: 1em">
+                        <div>
+                            <a>קוד זיהוי</a>
+                        </div>
+                        <div style="padding: 10px">
+                            <input type="number" name="pin_code">
+                        </div>
+                    <div>
+                        <small class="text-muted">
+                       • קוד זיהוי שהמנהל הביא לך כדי להירשם.
+                     </small>
+                    </div>
+                    </div>
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">הירשם</button>
+            </div>
+        </form>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                כבר נרשמת? <a class="ml-2" href="{% url 'login' %}">התחבר</a>
+            </small>
+        </div>
+    </div>
+    {% endif %}
+{% endblock content %}

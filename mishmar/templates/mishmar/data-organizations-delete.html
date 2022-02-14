@@ -1,0 +1,26 @@
+{% extends "mishmar/base.html" %}
+<html dir = rtl>
+{% block content %}
+    <div>
+        <form method="POST">
+            {% csrf_token %}
+        <h1>מחיקת נתונים</h1>
+        <h3>מחיקת נתוני סידור והגשות</h3>
+          <div dir="rtl" class="content-section">
+              <div>
+                  <h6>כמות נתונים בסידורים והגשות:</h6>
+                  <div>
+                  <h3>{{ shifts_organization_sum }}</h3>
+                  <h5>האם אתה בטוח שאתה רוצה למחוק את הנתונים של הסידורים וההגשות חוץ מהשניים האחרונים?</h5>
+                </div>
+                <div style="display: flex;
+                flex-direction: row; justify-content: space-between">
+                    <button type="submit" class="btn btn-danger" name="delete">מחק נתונים</button>
+                  <button type="submit" class="btn btn-secondary" name="cancel">ביטול</button>
+                </div>
+              </div>
+              </div>
+            </form>
+              </div>
+
+{% endblock content %}

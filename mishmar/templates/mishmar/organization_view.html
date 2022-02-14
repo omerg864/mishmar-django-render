@@ -1,0 +1,55 @@
+</div>
+<div>
+    <a>פרסום:</a>
+</div>
+<div class="toggle-button-cover">
+          <div class="button-cover">
+        <div class="button r" id="button-3">
+            {% if not checked %}
+          <input type="checkbox" class="checkbox" value="True" name="pub" checked>
+            {% else %}
+            <input type="checkbox" class="checkbox" value="True" name="pub">
+            {% endif %}
+          <div class="knobs"></div>
+          <div class="layer"></div>
+        </div>
+          </div>
+</div>
+        </div>
+    <div class="content-section">
+        <div>
+    {% for week in weeks %}
+<table class="responsive-table-input-matrix" style="align-items: center">
+		<thead>
+        <tr>
+			<th>תאריך</th>
+			{% for day in days|clip_days:forloop.counter0 %}
+                <th>{{ day|date:"d.m" }}</th>
+                {% endfor %}
+		</tr>
+		<tr>
+			<th></th>
+			<th>ראשון</th>
+			<th>שני</th>
+			<th>שלישי</th>
+			<th>רביעי</th>
+			<th>חמישי</th>
+			<th>שישי</th>
+			<th>שבת</th>
+		</tr>
+		</thead>
+		<tbody>
+            {% for key in shifts %}
+            {% if key|check_keys:week %}
+        <tr style="align-content: end">
+            <td>{{ key.title }} <br> {% if key.sub_title != None %} {{key.sub_title}} {%endif %}</td>
+            {% for shift in key|get_week_shift:week %}
+            <td><textarea name="day{{forloop.counter}}@{{key.title}}@{{key.id}}@{{ forloop.parentloop.parentloop.counter0 }}" >{{ shift|default_if_none:"" }}</textarea></td>
+            {% endfor %}
+        </tr>
+        {% endif %}
+        {% endfor %}
+		</tbody>
+	</table>
+            </div>
+        {% endfor %}

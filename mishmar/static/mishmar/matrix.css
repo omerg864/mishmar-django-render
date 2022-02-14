@@ -1,0 +1,105 @@
+/*
+Generic Styling, for Desktops/Laptops
+*/
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+/* Zebra striping */
+tr:nth-of-type(odd) {
+  background: #eee;
+}
+th {
+  background: #333;
+  color: white;
+  font-weight: bold;
+}
+td, th {
+  padding: 6px;
+  border: 1px solid #ccc;
+  text-align: center;
+	white-space: pre-line;
+}
+notes{
+	margin-top: 2em;
+	margin-left: 0.5em;
+}
+.notes_organization{
+	width: 150px;
+	height: 30px;
+	resize: vertical;
+	display: block;
+  box-sizing: border-box;
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 2px 2px 8px black;
+  border: 0;
+}
+.integerSpinner {
+	width: 80px;
+	height: 25px;
+}
+textarea{
+    width: 100px;
+    height: 50px;
+    white-space: pre-wrap;
+}
+.notesArea{
+	width: 300px;
+	height: 50px;
+    white-space: pre-line;
+}
+.suggestion_morning {
+    width: 130px;
+	height: 140px;
+    resize: vertical;
+    white-space: pre-line;
+}
+.suggestion_noon {
+    width: 130px;
+	height: 90px;
+    resize: vertical;
+    white-space: pre-line;
+}
+.suggestion_night {
+    width: 130px;
+	height: 50px;
+    resize: vertical;
+    white-space: pre-line;
+}
+.greed_td {
+    color: #00c200;
+}
+.center_div{
+  text-align: center;
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+  flex: 1;
+  justify-content: space-between;
+}
+#sig-canvas {
+  border: 2px dotted #CCCCCC;
+  border-radius: 15px;
+  cursor: crosshair;
+  touch-action: none;
+}
+#sig-canvas_out {
+  border: 2px dotted #CCCCCC;
+  border-radius: 15px;
+  cursor: crosshair;
+  touch-action: none;
+}
+#sig-canvas_valid {
+  border: 2px dotted #CCCCCC;
+  border-radius: 15px;
+  cursor: crosshair;
+  touch-action: none;
+}
+#sig-canvas_out_valid {
+  border: 2px dotted #CCCCCC;
+  border-radius: 15px;
+  cursor: crosshair;
+  touch-action: none;
+}

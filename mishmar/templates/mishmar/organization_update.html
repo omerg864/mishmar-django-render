@@ -1,0 +1,54 @@
+{% extends "mishmar/base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+<html dir = rtl lang="he">
+{% block content %}
+    {% if is_empty %}
+    <div>
+        <h3 style="align-items: center">אין סידור עדיין</h3>
+            </div>
+    {% else %}
+        <form method="POST" name="form" enctype="multipart/form-data">
+        {% csrf_token %}
+            <div>
+        <h3 style="align-items: center">סידור בין תאריך {{ days|first|date:"d.m" }} לתאריך {{ days|last|date:"d.m" }}</h3>
+            </div>
+        <div class="row">
+            <div style="margin-top: 3.5em; margin-left: 1em">
+                <a>פעולות: </a>
+            </div>
+            <div style="margin-top: 3.5em">
+                <div class="dropdown dropdown-dark">
+                <select name="actions" class="dropdown-select">
+              <option value="update" >עדכון</option>
+                <option value="check1" >בדיקת תקינות</option>
+                <option value="ready" >תצוגת סידור מוכן</option>
+                <option value="table" >טבלת משמרות</option>
+                <option value="upload" >העלאה</option>
+                <option value="clear" >איפוס</option>
+                    <option value="delete" >מחיקת סידור</option>
+            </select>
+                </select>
+              </div>
+            </div>
+            <div>
+                            <div class="form-group">
+            <div class="con buttons">
+      <button class="but effect01" type="submit"><span>בצע</span></button>
+    </div>
+     </div>
+            </div>
+        </div>
+        <div class="row">
+        <div style="margin-bottom: 0.5em">
+                <input type="file" name="myfile">
+            </div>
+            <div>
+            {% block view_form %}
+    {% include "mishmar/organization_view.html" %}
+{% endblock %}
+            </div>
+    </div>
+    {% endif %}
+{% endblock content %}
+    </form>

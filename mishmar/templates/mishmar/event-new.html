@@ -1,0 +1,37 @@
+{% extends "mishmar/base.html" %}
+{% block content %}
+<h1>אירוע חדש</h1>
+
+<table class="responsive-table-input-matrix" style="align-items: center">
+    <thead>
+    <tr>
+        <th>תאריך</th>
+        <th>שם</th>
+        <th>תיאור</th>
+        <th></th>
+        {% if view_type == 'update' %} 
+        <th></th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+        <form method="POST">
+            {% csrf_token %}
+    <tr style="align-content: end">
+        <td><input type="date" name="date" id="date" required {% if view_type == 'create' %} value="{{today|date:"Y-m-d"}}" {% else %} value="{{event.date2|date:"Y-m-d"}}" {% endif %}></td>
+        <td><select name="names">
+            <option value="כולם"><a>כולם</a></option>
+            {% for name in names %}
+            <option value="{{ name }}" {% if view_type == 'update' %}  {% if name == event.nickname %} selected {% endif %} {% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select></td>
+        <td><input type="text" required name="description" id="description" {% if view_type == 'update' %} value="{{ event.description}}" {% endif %}></td>
+        <td><button type="submit" name="add/change" class="btn btn-primary">{% if view_type == 'create' %}הוספה {% else %} שינוי {% endif %}</button></td>
+        {% if view_type == 'update' %} 
+        <td><button type="submit" name="delete" class="btn btn-danger">מחיקה</button></td>
+        {% endif %}
+    </tr>
+</form>
+    </tbody>
+</table>
+{% endblock content %}

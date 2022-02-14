@@ -1,0 +1,61 @@
+{% extends "mishmar/base.html" %}
+{% block content %}
+<h1>משתמשים</h1>
+
+<table class="responsive-table-input-matrix" style="align-items: center">
+    <thead>
+    <tr>
+        <th>כינוי</th>
+        <th>שם משתמש</th>
+        <th>שם פרטי</th>
+        <th>שם משפחה</th>
+        <th>אימייל</th>
+        <th>אחמ"ש</th>
+        <th>מנהל אתר</th>
+        <th>סיסמה</th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+    <form method="POST">
+      {% csrf_token %}
+    <tr style="align-content: end">
+        <td><input type="text" required name="nickname{{user.id}}" id="nickname{{user.id}}" value="{{user|get_nickname}}"></td>
+        <td><input type="text" required name="username{{user.id}}" id="username{{user.id}}" value="{{user.username}}" ></td>
+        <td><input type="text" required name="first{{user.id}}" id="first{{user.id}}" value="{{user.first_name}}" ></td>
+        <td><input type="text" required name="last{{user.id}}" id="last{{user.id}}" value="{{user.last_name}}" ></td>
+        <td><input type="email" required name="email{{user.id}}" id="email{{user.id}}" value="{{user.email}}" ></td>
+        <td><input type="checkbox" name="manager{{user.id}}" id="manager{{user.id}}" {% if user|isManager %}checked {% endif %}></td>
+        <td><input type="checkbox" name="staff{{user.id}}" id="staff{{user.id}}" {% if user|isStaff %}checked {% endif %}></td>
+        <td><button type="submit" name="change" value="{{user.id}}"class="btn btn-secondary">איפוס סיסמה</button></td>
+        <td><button type="submit" name="change" value="{{user.id}}"class="btn btn-primary">שינוי</button></td> 
+        <td><button type="submit" name="delete" value="{{ user.id}}" class="btn btn-danger">מחיקה</button></td>
+    </tr>
+  </form>
+    {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+
+{% if page_obj.has_previous %}
+  <a class="btn btn-outline-info mb-4" href="?page=1">ראשון</a>
+  <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">קודם</a>
+{% endif %}
+
+{% for num in page_obj.paginator.page_range %}
+  {% if page_obj.number == num %}
+    <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+    <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+  {% endif %}
+{% endfor %}
+
+{% if page_obj.has_next %}
+  <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">הבא</a>
+  <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">אחרון</a>
+{% endif %}
+
+{% endif %}
+{% endblock content %}

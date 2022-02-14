@@ -1,0 +1,26 @@
+{% extends "mishmar/base.html" %}
+<html dir = rtl>
+{% block content %}
+    <div>
+        <form method="POST">
+            {% csrf_token %}
+        <h1>כמות נתונים</h1>
+        <h3>כמות נתונים כוללת {{sum_all}} מתוך 10000</h3>
+          <div dir="rtl" class="content-section">
+              <div>
+                  <h6>כמות נתונים בסידורים והגשות:</h6>
+                  <div>
+                  <h3>{{ shifts_organization_sum }}</h3>
+                  <button type="submit" class="btn btn-danger" name="org">מחק נתונים</button>
+                </div>
+              </div>
+              <div style="margin-top: 10px;">
+                <h6>כמות נתונים ביומן חימוש:</h6>
+                <h3>{{ logs_sum }}</h6>
+                <button type="submit" class="btn btn-danger" name="log">מחק נתונים</button>
+            </div>
+              </div>
+            </form>
+              </div>
+
+{% endblock content %}

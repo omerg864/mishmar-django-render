@@ -1,0 +1,71 @@
+{% extends "mishmar/base.html" %}
+{% block content %}
+<h1>אירועים</h1>
+
+<table class="responsive-table-input-matrix" style="align-items: center">
+    <thead>
+    <tr>
+        <th>תאריך</th>
+        <th>שם</th>
+        <th>תיאור</th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+        <form method="POST">
+            {% csrf_token %}
+    <tr style="align-content: end">
+        <td><input required type="date" name="date" id="date" value="{{today|date:"Y-m-d"}}"></td>
+        <td><select name="names">
+            <option value="כולם"><a>כולם</a></option>
+            {% for name in names %}
+            <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select></td>
+        <td><input required type="text" name="description" id="description"></td>
+        <td><button type="submit" name="new" class="btn btn-primary">הוספה</button></td> 
+        <td></td>
+    </tr>
+    </form>
+    {% for event in events %}
+    <form method="POST">
+      {% csrf_token %}
+    <tr style="align-content: end">
+        <td><input type="date" name="date{{event.id}}" id="date{{event.id}}" value="{{event.date2|date:"Y-m-d"}}" ></td>
+        <td><select name="names{{event.id}}">
+            <option value="כולם"><a>כולם</a></option>
+            {% for name in names %}
+            <option value="{{ name }}"  {% if name == event.nickname %} selected {% endif %} >{{ name }}</option>
+            {% endfor %}
+        </select></td>
+        <td><input type="text" name="description{{event.id}}" id="description{{event.id}}" required value="{{ event.description}}" ></td>
+        <td><button type="submit" name="change" value="{{event.id}}"class="btn btn-primary">שינוי</button></td> 
+        <td><button type="submit" name="delete" value="{{ event.id}}" class="btn btn-danger">מחיקה</button></td>
+    </tr>
+  </form>
+    {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+
+{% if page_obj.has_previous %}
+  <a class="btn btn-outline-info mb-4" href="?page=1">ראשון</a>
+  <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">קודם</a>
+{% endif %}
+
+{% for num in page_obj.paginator.page_range %}
+  {% if page_obj.number == num %}
+    <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+    <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+  {% endif %}
+{% endfor %}
+
+{% if page_obj.has_next %}
+  <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">הבא</a>
+  <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">אחרון</a>
+{% endif %}
+
+{% endif %}
+{% endblock content %}

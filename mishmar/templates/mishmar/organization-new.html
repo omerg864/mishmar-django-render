@@ -1,0 +1,19 @@
+{% extends "mishmar/base.html" %}
+<html dir = rtl>
+{% block content %}
+     <h1>יצירת סידור חדש:</h1>
+    <form method="POST">
+        {% csrf_token %}
+    <label for="date" style="margin-top: 10px">תאריך:</label>
+    <input type="date" id="date" name="date" value="{{ date1|date:"Y-m-d" }}">
+        <div>
+        <label for="num_weeks" style="margin-top: 10px">מ'ס שבועות:</label>
+        {{ form.num_weeks }}
+            </div>
+        <div class="form-group">
+            <div class="con buttons">
+      <button name="download" class="but effect01" type="submit"><span>הוסף</span></button>
+    </div>
+        </div>
+    </form>
+{% endblock content %}

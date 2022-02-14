@@ -1,0 +1,86 @@
+{% extends "mishmar/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% if user.username != 'metagber' %}
+    <div class="row">
+    <div dir="rtl" style="text-align: right" class="content-section">
+      <div style="text-align: right" class="media" dir="rtl">
+        <img class="rounded-circle account-img" src="https://lh3.google.com/u/2/d/1vVnbgNUFZ6PxzhqUnpsXcNif_nJP1YFQ=w1920-h566-iv1">
+        <div style="text-align: right"  dir="rtl" class="media-body">
+          <h2  class="account-heading">{{ user.username }}</h2>
+          <p dir="rtl" style="margin-right: 1.0em" class="text-secondary">{{ user.email }}</p>
+            <p dir="rtl" style="margin-right: 1.0em" class="text-secondary">{{ user.first_name }} {{ user.last_name }}</p>
+        </div>
+      </div>
+      <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group" enctype="multipart/form-data">
+                <legend class="border-bottom mb-4">פרופיל עובד</legend>
+                <div >
+                    <div style="margin-bottom: 1em">
+                        <div>
+                            <a>שם משתמש</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ u_form.username }}
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1em">
+                        <div>
+                            <a>שם פרטי</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ u_form.first_name }}
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1em">
+                        <div >
+                            <a >שם משפחה</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ u_form.last_name }}
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1em">
+                        <div>
+                            <a >אימייל</a>
+                        </div>
+                        <div style="padding: 10px">
+                            {{ u_form.email }}
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1.5em">
+                        <div>
+                            <a >שפת אתר</a>
+                        </div>
+                        <div>
+                            <select name="languages">
+                                {% if language == 'english' %}
+                              <option value="english" selected>English</option>
+                                <option value="hebrew">Hebrew</option>
+                                {% else %}
+                              <option value="hebrew" selected>Hebrew</option>
+                                <option value="english">English</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="form-group">
+                <div class="con2 buttons">
+                    <button class="but effect01" type="submit"><span>עדכון</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div dir="rtl" style="margin-right: 1.5em" class="content-section">
+        <h2>איכויות:</h2>
+        <h6>לילה: {{ night }}</h6>
+        <h6>שבת בוקר: {{ sat_morning }}</h6>
+        <h6>שבת צהריים: {{ sat_noon }}</h6>
+        <h6>שישי לילה/מוצ"ש: {{ sat_night }}</h6>
+    </div>
+    </div>
+{% endif %}
+{% endblock content %}

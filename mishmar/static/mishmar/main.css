@@ -1,0 +1,426 @@
+body {
+  background: #fafafa;
+  color: #333333;
+  margin-top: 5rem;
+  padding: 1.5em;
+  direction: rtl;
+  text-align: right;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #444444;
+  direction: rtl;
+  text-align: center;
+}
+
+ul {
+  direction: rtl;
+  margin: 0;
+  text-align: right;
+}
+.title_hey{
+  font-size: 100rem;
+}
+
+.bg-steel {
+  background-color: #5f788a;
+}
+
+.site-header .navbar-nav .nav-link {
+  color: #cbd5db;
+}
+
+.site-header .navbar-nav .nav-link:hover {
+  color: #ffffff;
+}
+
+.site-header .navbar-nav .nav-link.active {
+  font-weight: 500;
+}
+
+.content-section {
+  background: #ffffff;
+  padding: 5px 5px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  direction: rtl;
+  text-align: center;
+}
+
+.article-title {
+  color: #444444;
+}
+
+a.article-title:hover {
+  color: #428bca;
+  text-decoration: none;
+}
+
+.article-content {
+  white-space: pre-line;
+  text-align: right;
+  flex: 1;
+  justify-content: start;
+}
+
+.article-img {
+  height: 65px;
+  width: 65px;
+  margin-right: 16px;
+}
+
+.article-metadata {
+  padding-bottom: 1px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e3e3e3
+}
+
+.article-metadata a:hover {
+  color: #333;
+  text-decoration: none;
+}
+
+.article-svg {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+}
+
+.account-img {
+  height: 125px;
+  width: 125px;
+  margin-right: 20px;
+  margin-bottom: 16px;
+}
+
+.account-heading {
+  font-size: 2.5rem;
+}
+input[type=text]{
+	width: 170px;
+	height: 30px;
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+input[type=email]{
+	width: 170px;
+	height: 30px;
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+input[type=password]{
+	width: 170px;
+	height: 30px;
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+input[type=number]{
+	width: 170px;
+	height: 30px;
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+input[type=time]{
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+input[type=checkbox]{
+  width: 30px;
+	height: 30px;
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+select{
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+textarea{
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+input[type=date]{
+  overflow: hidden;
+  font-size: 14px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px black;
+  border: 1;
+}
+.dropdown {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  height: 28px;
+  width: 150px;
+  background: #f2f2f2;
+  border: 1px solid;
+  border-color: white #f7f7f7 whitesmoke;
+  border-radius: 3px;
+  background-image: -webkit-linear-gradient(top, transparent, rgba(0, 0, 0, 0.06));
+  background-image: -moz-linear-gradient(top, transparent, rgba(0, 0, 0, 0.06));
+  background-image: -o-linear-gradient(top, transparent, rgba(0, 0, 0, 0.06));
+  background-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.06));
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+
+.dropdown:before, .dropdown:after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 9px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 4px dashed;
+  border-color: #888888 transparent;
+  pointer-events: none;
+}
+
+.dropdown:before {
+  border-bottom-style: solid;
+  border-top: none;
+}
+
+.dropdown:after {
+  margin-top: 7px;
+  border-top-style: solid;
+  border-bottom: none;
+}
+
+.dropdown-select {
+  position: relative;
+  width: 130%;
+  margin-right: 14px;
+  padding: 6px 8px 6px 10px;
+  height: 28px;
+  line-height: 14px;
+  font-size: 12px;
+  color: #62717a;
+  text-shadow: 0 1px white;
+  background: #f2f2f2; /* Fallback for IE 8 */
+  background: rgba(0, 0, 0, 0) !important; /* "transparent" doesn't work with Opera */
+  border: 0;
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+
+.dropdown-select:focus {
+  z-index: 3;
+  width: 100%;
+  color: #394349;
+  outline: 2px solid #49aff2;
+  outline: 2px solid -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+.dropdown-select > option {
+  margin: 3px;
+  padding: 6px 8px;
+  text-shadow: none;
+  background: #f2f2f2;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* Fix for IE 8 putting the arrows behind the select element. */
+
+.lt-ie9 .dropdown {
+  z-index: 1;
+}
+
+.lt-ie9 .dropdown-select {
+  z-index: -1;
+}
+
+.lt-ie9 .dropdown-select:focus {
+  z-index: 3;
+}
+
+/* Dirty fix for Firefox adding padding where it shouldn't. */
+
+@-moz-document url-prefix() {
+  .dropdown-select {
+    padding-left: 6px;
+  }
+}
+
+.dropdown-dark {
+  background: #444;
+  border-color: #111111 #0a0a0a black;
+  background-image: -webkit-linear-gradient(top, transparent, rgba(0, 0, 0, 0.4));
+  background-image: -moz-linear-gradient(top, transparent, rgba(0, 0, 0, 0.4));
+  background-image: -o-linear-gradient(top, transparent, rgba(0, 0, 0, 0.4));
+  background-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.4));
+  -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), 0 1px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-dark:before {
+  border-bottom-color: #aaa;
+}
+
+.dropdown-dark:after {
+  border-top-color: #aaa;
+}
+
+.dropdown-dark .dropdown-select {
+  color: #aaa;
+  text-shadow: 0 1px black;
+  background: #444;  /* Fallback for IE 8 */
+}
+
+.dropdown-dark .dropdown-select:focus {
+  color: #ccc;
+}
+
+.dropdown-dark .dropdown-select > option {
+  background: #444;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.button-cover
+{
+    height: 0;
+    background-color: #fafafa;
+}
+
+.button-cover:before
+{
+    counter-increment: button-counter;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: #d7e3e3;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0;
+}
+
+.button-cover, .knobs, .layer
+{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.button
+{
+    position: relative;
+    top: 50%;
+    width: 74px;
+    height: 36px;
+    margin: 0 auto 0 auto;
+    overflow: hidden;
+}
+
+.button.r, .button.r .layer
+{
+    border-radius: 100px;
+}
+
+.button.b2
+{
+    border-radius: 2px;
+}
+
+.checkbox
+{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.knobs
+{
+    z-index: 2;
+}
+
+.layer
+{
+    width: 100%;
+    background-color: #ebf7fc;
+    transition: 0.3s ease all;
+    z-index: 1;
+}
+/* Button 3 */
+#button-3 .knobs:before
+{
+    content: 'YES';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 26px;
+    height: 26px;
+    color: #000000;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+    padding: 8px 4px;
+    background-color: #03A9F4;
+    border-radius: 50%;
+    transition: 0.3s ease all, left 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15);
+}
+
+#button-3 .checkbox:active + .knobs:before
+{
+    width: 46px;
+    border-radius: 100px;
+}
+
+#button-3 .checkbox:checked:active + .knobs:before
+{
+    margin-left: -26px;
+}
+
+#button-3 .checkbox:checked + .knobs:before
+{
+    content: 'NO';
+    left: 42px;
+    background-color: #F44336;
+}
+
+#button-3 .checkbox:checked ~ .layer
+{
+    background-color: #fcebeb;
+}
+.toggle-button-cover
+{
+    display: table-cell;
+    position: relative;
+    width: 100px;
+    height: 20px;
+    box-sizing: border-box;
+}

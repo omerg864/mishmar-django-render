@@ -6,7 +6,7 @@ from PIL import Image
 
 class UserSettings(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nickname = models.CharField(default="אין", max_length=20, verbose_name="כינוי")
+    nickname = models.CharField(default="אין", max_length=20, verbose_name="כינוי", blank=True)
     night = models.IntegerField(default=0, verbose_name="לילה")
     sat_night = models.IntegerField(default=0, verbose_name="שישי לילה/מוצ\"ש")
     fri_noon = models.IntegerField(default=0, verbose_name="שישי צהריים")

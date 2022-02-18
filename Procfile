@@ -1,1 +1,1 @@
-web: gunicorn DjangoSchedule.wsgi --log-file -
+web: gunicorn mishmardjango.wsgi --log-file -

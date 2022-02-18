@@ -101,47 +101,10 @@ def settings_view(request):
 
 # Home view
 def home(request):
-    settings = Settings.objects.all().first()
-    data = {}
-    api_key = "4cba4792d5c0c0222cc84e409138af7a"
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    if settings.city == '':
-        city_name = "Ramla"
+    if request.user.is_authenticated:
+        profile = USettings.objects.all().filter(user=request.user).last()
     else:
-        translator2en = GoogleTranslator(source='auto', target='en')
-        city_name = translator2en.translate(settings.city)
-    try:
-        complete_url = base_url + "appid=" + api_key + "&q=" + city_name
-        response = requests.get(complete_url)
-        data = response.json()
-    except:
-        data = {"Not Found:": ""}
-
-    if data["cod"] != "404":
-        try:
-            y = data["main"]
-            current_temperature = str(int(y["temp"] - 273.15)) + " °C"
-            current_pressure = str(y["pressure"]) + " hPa"
-            current_humidiy = str(y["humidity"]) + "%"
-            weather_description = data["weather"][0]["description"]
-            weather = {
-                translate_text("טמפרטורה", request.user, "hebrew"): current_temperature,
-                translate_text("לחץ אטמוספרי", request.user, "hebrew"): current_pressure,
-                translate_text("לחות", request.user, "hebrew"): current_humidiy,
-                translate_text("תיאור", request.user, "hebrew"):
-                    translate_text(weather_description, request.user, "english")
-            }
-        except AttributeError:
-            print("Weather Error")
-            weather = {
-                translate_text("לא נמצא", request.user, "hebrew"):
-                    translate_text("לא ניתן לטעון מזג האוויר", request.user, "hebrew")
-            }
-    else:
-        print(" City Not Found ")
-        weather = {
-            translate_text("לא נמצא", request.user, "hebrew"): translate_text("עיר לא נמצא", request.user, "hebrew")
-        }
+        profile = None
     posts = Post.objects.all()
     armingrequests = ArmingRequest.objects.all().filter(read=False)
     if request.user.is_authenticated:
@@ -150,9 +113,8 @@ def home(request):
             if num_requests > 0:
                 messages.info(request, f'יש {num_requests} בקשות לשינוי ביומן חימוש')
     context = {
-        "weather": weather,
         "posts": posts,
-        "city": city_name,
+        "profile": profile,
     }
     return render(request, "mishmar/Home.html", context)
 

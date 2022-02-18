@@ -11,7 +11,7 @@ class UserSettings(models.Model):
     sat_night = models.IntegerField(default=0, verbose_name="שישי לילה/מוצ\"ש")
     fri_noon = models.IntegerField(default=0, verbose_name="שישי צהריים")
     sat_morning = models.IntegerField(default=0, verbose_name="שבת בוקר/צהריים")
-    image = models.ImageField(default="default.jpg", upload_to="profile_pics")
+    image = models.TextField(default="", verbose_name="תמונה", blank=True)
     sat = models.BooleanField(default=False, verbose_name="עושה רק מוצ\"ש")
     language = models.CharField(default="hebrew", max_length=30, verbose_name="שפה")
 

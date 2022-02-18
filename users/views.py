@@ -16,6 +16,7 @@ from django.views.generic import UpdateView, ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.template.defaulttags import register as register_tag
 import re
+import base64
 
 
 def login(request):
@@ -96,6 +97,13 @@ def profile(request):
     if request.method == "POST":
         u_form = UserUpdateForm(request.POST, instance=request.user)
         user_settings.language = request.POST.get("languages")
+        try:
+            image =  request.FILES['imagefile']
+            b64 = base64.b64encode(image.file.read())
+            bytesv = b'data:image/png;base64,' + b64
+            user_settings.image = bytesv.decode("utf-8")
+        except:
+            print("no image")
         if u_form.is_valid():
             email = u_form.cleaned_data.get("email")
             if User.objects.filter(email=email).count() > 0:
@@ -114,11 +122,7 @@ def profile(request):
         u_form = UserUpdateForm(instance=request.user)
     context = {
         "u_form": u_form,
-        "night": user_settings.night,
-        "sat_night": user_settings.sat_night,
-        "sat_morning": user_settings.sat_morning,
-        "language": user_settings.language,
-        'fri_noon': user_settings.fri_noon,
+        "user_settings": user_settings,
     }
     return render(request, "users/profile.html", context)
 

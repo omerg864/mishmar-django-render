@@ -193,7 +193,7 @@ input[type=date]{
   position: absolute;
   z-index: 2;
   top: 9px;
-  right: 10px;
+  right: 130px;
   width: 0;
   height: 0;
   border: 4px dashed;
@@ -215,7 +215,6 @@ input[type=date]{
 .dropdown-select {
   position: relative;
   width: 130%;
-  margin-right: 14px;
   padding: 6px 8px 6px 10px;
   height: 28px;
   line-height: 14px;

@@ -5,14 +5,14 @@
     <div class="row">
     <div dir="rtl" style="text-align: right" class="content-section">
       <div style="text-align: right" class="media" dir="rtl">
-        <img class="rounded-circle account-img" src="https://lh3.google.com/u/2/d/1vVnbgNUFZ6PxzhqUnpsXcNif_nJP1YFQ=w1920-h566-iv1">
+        <img class="rounded-circle account-img" {% if user_settings.image == '' or user_settings.image == None %} src="https://lh3.google.com/u/2/d/1vVnbgNUFZ6PxzhqUnpsXcNif_nJP1YFQ=w1920-h566-iv1" {% else %} src="{{ user_settings.image }}" {% endif %}>
         <div style="text-align: right"  dir="rtl" class="media-body">
           <h2  class="account-heading">{{ request.user.username }}</h2>
           <p dir="rtl" style="margin-right: 1.0em" class="text-secondary">{{ request.user.email }}</p>
             <p dir="rtl" style="margin-right: 1.0em" class="text-secondary">{{ request.user.first_name }} {{ request.user.last_name }}</p>
         </div>
       </div>
-      <form method="POST">
+      <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <fieldset class="form-group" enctype="multipart/form-data">
                 <legend class="border-bottom mb-4">פרופיל עובד</legend>
@@ -49,7 +49,15 @@
                             {{ u_form.email }}
                         </div>
                     </div>
-                    <div style="margin-bottom: 1.5em">
+                    <div style="margin-bottom: 1em">
+                        <div>
+                            <a >תמונה</a>
+                        </div>
+                        <div style="padding: 10px">
+                            <input type="file" name="imagefile" id="imagefile">
+                        </div>
+                    </div>
+                    <div hidden style="margin-bottom: 1.5em">
                         <div>
                             <a >שפת אתר</a>
                         </div>
@@ -76,10 +84,10 @@
     </div>
     <div dir="rtl" style="margin-right: 1.5em" class="content-section">
         <h2>איכויות:</h2>
-        <h6>שישי לילה/מוצ"ש: {{ sat_night }}</h6>
-        <h6>שבת בוקר: {{ sat_morning }}</h6>
-        <h6>לילה: {{ night }}</h6>
-        <h6>שישי צהריים: {{ fri_noon }}</h6>
+        <h6>שישי לילה/מוצ"ש: {{ user_settings.sat_night }}</h6>
+        <h6>שבת בוקר: {{ user_settings.sat_morning }}</h6>
+        <h6>לילה: {{ user_settings.night }}</h6>
+        <h6>שישי צהריים: {{ user_settings.fri_noon }}</h6>
     </div>
     </div>
 {% endif %}

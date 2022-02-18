@@ -2,24 +2,20 @@
 <html dir = rtl>
 {% block content %}
     <main role="main" class="container" dir="rtl">
+      {% if request.user.is_authenticated %}
       <div dir="rtl" class="row">
     <div dir="rtl">
           <div dir="rtl" class="content-section">
-            <h3 dir="rtl">מזג האוויר</h3>
-            <a dir="rtl">מזג האוויר עכשיו ב{{ city }}</a>
-              <ul class="list-group" dir="rtl" style="align-content: right">
-              {% for item in weather %}
-                <li class="list-group-item list-group-item-light" dir="rtl">{{ item }}: {{ weather|get_item:item }}</li>
-              {% endfor %}
-              </ul>
-            </p>
+            <h4 dir="rtl">מחובר למשתמש: {{request.user.username}}</h4>
+            <h5 dir="rtl">{{ request.user.first_name }} {{ request.user.last_name }}</h5>
+            <h3>איכויות:</h3>
+            <h3>שישי לילה/מוצ"ש: {{ profile.sat_night }}</h3>
+            <h3>שבת בוקר: {{ profile.sat_morning }}</h3>
+            <h3>לילה: {{ profile.night }}</h3>
+            <h3>שישי צהריים: {{ profile.fri_noon }}</h3>
           </div>
         </div>
     <div dir="rtl" style="margin-right: 1.5em">
-        {% if request.user.is_authenticated %}
-            <div style="align-items: end">
-        <legend style="align-content: right" >היי {{ user.first_name }},</legend>
-            </div>
             {% for post in posts %}
                 <article class="content-section">
                 <div class="row border-bottom" style="margin-left: 3px; margin-right: 3px; margin-bottom: 7px">

@@ -137,7 +137,7 @@
                 {% else %}
                 <td><input type="text" name="user_name{{arming.id}}" id="user_name{{arming.id}}" required value="{{arming.name}}" style="width: 100px;"></td>
                 {% endif %}
-                <td><input type="time" value="{{arming.time_in|timestr}}" name="time_in{{arming.id}}" id="time_in{{arming.id}}"></td>
+                <td><input type="time" value="{{arming.time_in|timestr}}" required name="time_in{{arming.id}}" id="time_in{{arming.id}}"></td>
                 <td><select name="guns{{arming.id}}" id="guns{{arming.id}}">
                     {% for gun in guns %}
                     {% if gun.id == arming.gun_id %}

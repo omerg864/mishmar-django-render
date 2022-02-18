@@ -22,6 +22,7 @@
                 <th>אחמ"ש</th>
                 <th>משיכה</th>
                 <th>שינוי</th>
+                <th>מחיקה</th>
             </tr>
             </thead>
             <tbody>
@@ -40,7 +41,8 @@
                     <td><input type="checkbox" name="opening" id="opening" ></td>
                     <td><input type="checkbox" name="manager" id="manager" ></td>
                     <td><input type="checkbox" name="pull" id="pull" ></td>
-                    <td style="padding-top:20px;"><button class="btn btn-info mb-4" type="submit" name="add" id="add">הוספה</button></td>
+                    <td style="padding-top:20px;"><button class="btn btn-primary" type="submit" name="add" id="add">הוספה</button></td>
+                    <td></td>
                 </tr>
                 </form>
                 <form method="POST">
@@ -59,7 +61,8 @@
                 <td><input type="checkbox" name="opening{{shift.id}}" id="opening{{shift.id}}" {% if shift.opening %} checked {% endif %}></td>
                 <td><input type="checkbox" name="manager{{shift.id}}" id="manager{{shift.id}}" {% if shift.manager %} checked {% endif %}></td>
                 <td><input type="checkbox" name="pull{{shift.id}}" id="pull{{shift.id}}" {% if shift.pull %} checked {% endif %}></td>
-                <td style="padding-top:20px;"><button class="btn btn-info mb-4" type="submit" value="{{shift.id}}" name="change" id="change">שינוי</button></td>
+                <td style="padding-top:20px;"><button class="btn btn-primary" type="submit" value="{{shift.id}}" name="change" id="change">שינוי</button></td>
+                <td style="padding-top:20px;"><button class="btn btn-danger" type="submit" value="{{shift.id}}" name="delete" id="delete">מחיקה</button></td>
             </tr>
             {% endfor %}
         </form>

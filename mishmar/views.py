@@ -1624,6 +1624,12 @@ def organization_shift_view(request):
             else:
                 messages.success(request, "נשמר בהצלחה")
             return HttpResponseRedirect(request.path_info)
+        elif 'delete' in request.POST:
+            shift_id = request.POST.get('delete')
+            shift = OrganizationShift.objects.all().filter(id=shift_id).first()
+            shift.delete()
+            messages.success(request, "נמחק בהצלחה")
+            return HttpResponseRedirect(request.path_info)
         elif 'view_org' in request.POST:
             return render(request, 'mishmar/organization-ready.html', context)
         elif 'back' in request.POST:

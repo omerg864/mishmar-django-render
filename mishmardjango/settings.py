@@ -15,7 +15,7 @@ SECRET_KEY = os.environ.get('MISHMAR-DYNAMIC-KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
 
-ALLOWED_HOSTS = ["mishmarramla.herokuapp.com", "127.0.0.1"]
+ALLOWED_HOSTS = ["mishmar-ramla.herokuapp.com", "127.0.0.1"]
 
 # Application definition
 

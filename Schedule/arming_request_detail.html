@@ -1,0 +1,588 @@
+{% extends "Schedule/base.html" %}
+{% block content %}
+
+<ul>
+        <h1>יומן חימוש טיפול בבקשה - {{ armingrequest.log.date|date:"d/m/Y" }}</h1>
+        <h2>{{arming.name}}</h2>   
+        <table class="responsive-table-input-matrix" style="align-items: center">
+            <thead>
+                <tr>
+                    <th style="width:84.9%">טופס מסירה - קבלת ציוד</th>
+                    <th>החזרת ציוד - כליי ירייה</th>
+                </tr>
+                </thead>
+        </table>
+        <table class="responsive-table-input-matrix" style="align-items: center">
+          <thead>
+              <tr>
+                  <th>החתמה קודמת</th>
+              </tr>
+              </thead>
+      </table>
+        <table class="responsive-table-input-matrix" style="align-items: center">
+            <thead>
+            <tr>
+                <th>משמרת</th>
+                <th>ת.ז.</th>
+                <th>שם</th>
+                <th>שעה</th>
+                <th>מס' נשק</th>
+                <th>מס' מחסניות</th>
+                <th>אזיקים</th>
+                <th>פונדה</th>
+                <th>נרתיק</th>
+                <th>מפתחות</th>
+                <th>קשר</th>
+                <th>ערכת שמע</th>
+                <th>חתימה</th>
+                <th>חתימת מורשה</th>
+                <th>שעה</th>
+                <th>חתימה</th>
+                <th>חתימת מורשה</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+                <form method="POST">
+                    {% csrf_token %}
+            <tr style="align-content: end">
+                <td>{{arming.shift_num|num_to_shift}}</td>
+                <td>{{arming.id_num}}</td>
+                <td><a name="user_name{{arming.id}}" id="user_name{{arming.id}}" value="{{arming.name}}">{{arming.name}}</a></td>
+                <td>{{arming.time_in|timestr}}</td>
+                <td><select name="guns{{arming.id}}" id="guns{{arming.id}}">
+                    {% for gun in guns %}
+                    {% if gun == arming.gun %}
+                    <option value="{{gun.id}}" selected disabled>{{gun.short_name}}</option>
+                    {% else %}
+                    <option value="{{gun.id}}" disabled>{{gun.short_name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                <td><select name="num_mags{{arming.id}}" id="num_mags{{arming.id}}">
+                    {% for num_mag in num_mags_list %}
+                    {% if num_mag == arming.num_mags %}
+                    <option value="{{num_mag}}" selected disabled>{{num_mag}}</option>
+                    {% else %}
+                    <option value="{{num_mag}}" disabled>{{num_mag}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                <td><select name="hand_cuffs{{arming.id}}" id="hand_cuffs{{arming.id}}">
+                    {% for hand in hand_cuffs_list %}
+                    {% if hand == arming.hand_cuffs %}
+                    <option value="{{hand}}" selected disabled>{{hand}}</option>
+                    {% else %}
+                    <option value="{{hand}}" disabled>{{hand}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                <td><select name="mag_case{{arming.id}}" id="mag_case{{arming.id}}">
+                    {% for mag in mag_case_list %}
+                    {% if mag == arming.mag_case %}
+                    <option value="{{mag}}" selected disabled>{{mag}}</option>
+                    {% else %}
+                    <option value="{{mag}}" disabled>{{mag}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                <td><select name="gun_case{{arming.id}}" id="gun_case{{arming.id}}">
+                    {% for gun in gun_case_list %}
+                    {% if gun == arming.gun_case %}
+                    <option value="{{gun}}" selected disabled>{{gun}}</option>
+                    {% else %}
+                    <option value="{{gun}}" disabled>{{gun}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                {% if arming.keys == True %}
+                    <td><input type="checkbox" name="keys{{arming.id}}" id="keys{{arming.id}}" checked disabled></td>
+                    {% else %}
+                    <td><input type="checkbox" name="keys{{arming.id}}" id="keys{{arming.id}}" disabled></td>
+                    {% endif %}
+                    {% if arming.radio == True %}
+                    <td><input type="checkbox" name="radio{{arming.id}}" id="radio{{arming.id}}" checked disabled></td>
+                    {% else %}
+                    <td><input type="checkbox" name="radio{{arming.id}}" id="radio{{arming.id}}" disabled></td>
+                    {% endif %}
+                    {% if arming.radio_kit == True %}
+                    <td><input type="checkbox" name="radio_kit{{arming.id}}" id="radio_kit{{arming.id}}" checked disabled></td>
+                    {% else %}
+                    <td><input type="checkbox" name="radio_kit{{arming.id}}" id="radio_kit{{arming.id}}" disabled></td>
+                    {% endif %}
+                <td>{% if arming.signature_in != "" and arming.signature_in != None %}<img id="sig-image" src={{arming.signature_in}} alt="Your signature will go here!" width="100px"/> {% endif %}</td>
+                <td>{% if arming.valid_in != "" and arming.valid_in != None %}<img id="sig-image" src={{arming.valid_in}} alt="Your signature will go here!" width="100px"/> {% endif %}</td>
+                <td>{% if arming.time_out != None %} {{arming.time_out|timestr}} {% else %} <a>אין יציאה</a> {% endif %}</td>
+                <td>{% if arming.signature_out != "" and arming.signature_out != None %}<img id="sig-image" src={{arming.signature_out}} alt="Your signature will go here!" width="100px"/> {% endif %}</td>
+                <td>{% if arming.valid_out != "" and arming.valid_out != None %}<img id="sig-image" src={{arming.valid_out}} alt="Your signature will go here!" width="100px"/> {% endif %}</td>
+                <td><button class="btn btn-info mb-4" type="submit" value="{{arming.id}}" id="change" name="change" disabled>שנה</button></td>
+            </tr>
+        </form>
+            </tbody>
+        </table>
+        <table class="responsive-table-input-matrix" style="align-items: center; margin-top: 10px">
+          <thead>
+              <tr>
+                  <th>הבקשה לשינוי</th>
+              </tr>
+              </thead>
+      </table>
+        <table class="responsive-table-input-matrix" style="align-items: center">
+            <thead>
+            <tr>
+                <th>משמרת</th>
+                <th>ת.ז.</th>
+                <th>שם</th>
+                <th>שעה</th>
+                <th>מס' נשק</th>
+                <th>מס' מחסניות</th>
+                <th>אזיקים</th>
+                <th>פונדה</th>
+                <th>נרתיק</th>
+                <th>מפתחות</th>
+                <th>קשר</th>
+                <th>ערכת שמע</th>
+                <th>חתימה</th>
+                <th>חתימת מורשה</th>
+                <th>שעה</th>
+                <th>חתימה</th>
+                <th>חתימת מורשה</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+                <form method="POST">
+                    {% csrf_token %}
+            <tr style="align-content: end">
+                <td>{{armingrequest.shift_num|num_to_shift}}</td>
+                <td>{{armingrequest.id_num}}</td>
+                <td><a name="user_name{{armingrequest.id}}" id="user_name{{armingrequest.id}}" value="{{armingrequest.name}}">{{arming.name}}</a></td>
+                <td>{{armingrequest.time_in|timestr}}</td>
+                <td><select name="guns{{armingrequest.id}}" id="guns{{armingrequest.id}}">
+                    {% for gun in guns %}
+                    {% if gun == armingrequest.gun %}
+                    <option value="{{gun.id}}" selected disabled>{{gun.short_name}}</option>
+                    {% else %}
+                    <option value="{{gun.id}}" disabled>{{gun.short_name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                <td><select name="num_mags{{armingrequest.id}}" id="num_mags{{armingrequest.id}}">
+                    {% for num_mag in num_mags_list %}
+                    {% if num_mag == armingrequest.num_mags %}
+                    <option value="{{num_mag}}" selected disabled>{{num_mag}}</option>
+                    {% else %}
+                    <option value="{{num_mag}}" disabled>{{num_mag}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                <td><select name="hand_cuffs{{armingrequest.id}}" id="hand_cuffs{{armingrequest.id}}">
+                    {% for hand in hand_cuffs_list %}
+                    {% if hand == armingrequest.hand_cuffs %}
+                    <option value="{{hand}}" selected disabled>{{hand}}</option>
+                    {% else %}
+                    <option value="{{hand}}" disabled>{{hand}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                <td><select name="mag_case{{armingrequest.id}}" id="mag_case{{armingrequest.id}}">
+                    {% for mag in mag_case_list %}
+                    {% if mag == armingrequest.mag_case %}
+                    <option value="{{mag}}" selected disabled>{{mag}}</option>
+                    {% else %}
+                    <option value="{{mag}}" disabled>{{mag}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                <td><select name="gun_case{{armingrequest.id}}" id="gun_case{{armingrequest.id}}">
+                    {% for gun in gun_case_list %}
+                    {% if gun == armingrequest.gun_case %}
+                    <option value="{{gun}}" selected disabled>{{gun}}</option>
+                    {% else %}
+                    <option value="{{gun}}" disabled>{{gun}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select></td>
+                {% if armingrequest.keys == True %}
+                    <td><input type="checkbox" name="keys{{armingrequest.id}}" id="keys{{armingrequest.id}}" checked disabled></td>
+                    {% else %}
+                    <td><input type="checkbox" name="keys{{armingrequest.id}}" id="keys{{armingrequest.id}}" disabled></td>
+                    {% endif %}
+                    {% if armingrequest.radio == True %}
+                    <td><input type="checkbox" name="radio{{armingrequest.id}}" id="radio{{armingrequest.id}}" checked disabled></td>
+                    {% else %}
+                    <td><input type="checkbox" name="radio{{armingrequest.id}}" id="radio{{armingrequest.id}}" disabled></td>
+                    {% endif %}
+                    {% if armingrequest.radio_kit == True %}
+                    <td><input type="checkbox" name="radio_kit{{armingrequest.id}}" id="radio_kit{{armingrequest.id}}" checked disabled></td>
+                    {% else %}
+                    <td><input type="checkbox" name="radio_kit{{armingrequest.id}}" id="radio_kit{{armingrequest.id}}" disabled></td>
+                    {% endif %}
+                <td>{% if armingrequest.signature_in != "" and armingrequest.signature_in != None %}<img id="sig-image" src={{armingrequest.signature_in}} alt="Your signature will go here!" width="100px"/> {% elif arming.signature_in != "" and arming.signature_in != None %}<img id="sig-image" src={{arming.signature_in}} alt="Your signature will go here!" width="100px">{% endif %}</td>
+                <td>{% if arming.valid_in != "" and arming.valid_in != None %}<img id="sig-image" src={{arming.valid_in}} alt="Your signature will go here!" width="100px"/> {% endif %}</td>
+                <td>{% if armingrequest.time_out != None %} {{armingrequest.time_out|timestr}} {% else %} <a>אין יציאה</a> {% endif %}</td>
+                <td>{% if armingrequest.signature_in != "" and armingrequest.signature_in != None %}<img id="sig-image" src={{armingrequest.signature_out}} alt="Your signature will go here!" width="100px"/> {% elif arming.signature_in != "" and arming.signature_in != None %}<img id="sig-image" src={{arming.signature_out}} alt="Your signature will go here!" width="100px">{% endif %}</td>
+                <td>{% if arming.valid_out != "" and arming.valid_out != None %}<img id="sig-image" src={{arming.valid_out}} alt="Your signature will go here!" width="100px"/> {% endif %}</td>
+                <td><button class="btn btn-info mb-4" type="submit" value="{{armingrequest.id}}" id="change" name="change" disabled>שנה</button></td>
+            </tr>
+        </form>
+            </tbody>
+        </table>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+            <div>
+                <div class="row">
+                    <div class="col-md-12">
+                    <h4>חתימת מורשה כניסה</h4>
+                    </div>
+                </div>
+                <div class="row" id="sigdiv">
+                    <div class="col-md-12">
+                         <canvas id="sig-canvas" name="sig-canvas" width="300" height="160" >
+                             Get a better browser, bro.
+                         </canvas>
+                     </div>
+                </div>
+                <div style="text-align:center">
+                        <button type="button" class="btn btn-default" id="sig-clearBtn">נקה חתימה</button>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea id="sig-dataUrl" hidden name="sig-dataUrl" class="form-control" rows="5">Data URL for your signature will go here!</textarea>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-right: 10px;">
+                <div class="row">
+                    <div class="col-md-12">
+                      <h4>חתימת מורשה יציאה</h4>
+                    </div>
+                </div>
+                <div class="row" id="sigdiv_out">
+                    <div class="col-md-12">
+                         <canvas id="sig-canvas_out" name="sig-canvas_out" width="300" height="160" >
+                             Get a better browser, bro.
+                         </canvas>
+                     </div>
+                </div>
+                <div style="text-align:center">
+                        <button type="button" class="btn btn-default" id="sig-clearBtn_out">נקה חתימה</button>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea id="sig-dataUrl_out" hidden name="sig-dataUrl_out" class="form-control" rows="5">Data URL for your signature will go here!</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+          <div>
+            <textarea id="reason" name="reason" disabled placeholder="אנא מלא את סיבת השינוי" style="width: 400px;height: 100px">{{ armingrequest.reason }}</textarea>
+          </div>
+          <div style="margin-top: 30px; margin-right: 50px">
+            <button class="btn btn-primary" id="sig-submitBtn" name="sig-submitBtn">אשר בקשה</button>
+    </div>
+    <div style="margin-top: 30px; margin-right: 50px">
+        <button class="btn btn-danger" id="reject" name="reject">דחה בקשה</button>
+</div>
+        </div>
+    </form>
+</ul>
+<script>
+    (function() {
+  window.requestAnimFrame = (function(callback) {
+    return window.requestAnimationFrame ||
+      window.webkitRequestAnimationFrame ||
+      window.mozRequestAnimationFrame ||
+      window.oRequestAnimationFrame ||
+      window.msRequestAnimaitonFrame ||
+      function(callback) {
+        window.setTimeout(callback, 1000 / 60);
+      };
+  })();
+
+  var canvas = document.getElementById("sig-canvas");
+  var ctx = canvas.getContext("2d");
+  var movement = false;
+  ctx.strokeStyle = "#222222";
+  ctx.lineWidth = 4;
+
+  var drawing = false;
+  var mousePos = {
+    x: 0,
+    y: 0
+  };
+  var lastPos = mousePos;
+
+  canvas.addEventListener("mousedown", function(e) {
+    drawing = true;
+    lastPos = getMousePos(canvas, e);
+  }, false);
+
+  canvas.addEventListener("mouseup", function(e) {
+    drawing = false;
+  }, false);
+
+  canvas.addEventListener("mousemove", function(e) {
+    mousePos = getMousePos(canvas, e);
+  }, false);
+
+    // Add touch event support for mobile
+    canvas.addEventListener("touchstart", function(e) {
+
+  }, false);
+
+  canvas.addEventListener("touchmove", function(e) {
+    var touch = e.touches[0];
+    var me = new MouseEvent("mousemove", {
+      clientX: touch.clientX,
+      clientY: touch.clientY
+    });
+    canvas.dispatchEvent(me);
+  }, false);
+
+  canvas.addEventListener("touchstart", function(e) {
+    mousePos = getTouchPos(canvas, e);
+    var touch = e.touches[0];
+    var me = new MouseEvent("mousedown", {
+      clientX: touch.clientX,
+      clientY: touch.clientY
+    });
+    canvas.dispatchEvent(me);
+  }, false);
+
+  canvas.addEventListener("touchend", function(e) {
+    var me = new MouseEvent("mouseup", {});
+    canvas.dispatchEvent(me);
+  }, false);
+
+  function getMousePos(canvasDom, mouseEvent) {
+    var rect = canvasDom.getBoundingClientRect();
+    return {
+      x: mouseEvent.clientX - rect.left,
+      y: mouseEvent.clientY - rect.top
+    }
+  }
+
+  function getTouchPos(canvasDom, touchEvent) {
+    var rect = canvasDom.getBoundingClientRect();
+    return {
+      x: touchEvent.touches[0].clientX - rect.left,
+      y: touchEvent.touches[0].clientY - rect.top
+    }
+  }
+
+  function renderCanvas() {
+    if (drawing) {
+      movement = true;
+      ctx.moveTo(lastPos.x, lastPos.y);
+      ctx.lineTo(mousePos.x, mousePos.y);
+      ctx.stroke();
+      lastPos = mousePos;
+    }
+  }
+
+  // Prevent scrolling when touching the canvas
+  document.body.addEventListener("touchstart", function(e) {
+    if (e.target == canvas) {
+      movement = true;
+      e.preventDefault();
+    }
+  }, false);
+  document.body.addEventListener("touchend", function(e) {
+    if (e.target == canvas) {
+      movement = true;
+      e.preventDefault();
+    }
+  }, false);
+  document.body.addEventListener("touchmove", function(e) {
+    if (e.target == canvas) {
+      movement = true;
+      e.preventDefault();
+    }
+  }, false);
+  document.body.addEventListener("touchcancel", function(e) {
+    if (e.target == canvas) {
+      movement = true;
+      e.preventDefault();
+    }
+  }, false);
+
+  (function drawLoop() {
+    requestAnimFrame(drawLoop);
+    renderCanvas();
+  })();
+
+  function clearCanvas() {
+    canvas.width = canvas.width;
+  }
+
+  // Set up the UI
+  var sigText = document.getElementById("sig-dataUrl");
+  var clearBtn = document.getElementById("sig-clearBtn");
+  var submitBtn = document.getElementById("sig-submitBtn");
+  clearBtn.addEventListener("click", function(e) {
+    clearCanvas();
+  }, false);
+  submitBtn.addEventListener("click", function(e) {
+    if(movement){
+    var dataUrl = canvas.toDataURL();
+    sigText.innerHTML = dataUrl;
+    } else {
+      sigText.innerHTML = "Empty"
+    }
+  }, false); 
+
+})();
+</script>
+<script>
+    (function() {
+  window.requestAnimFrame = (function(callback) {
+    return window.requestAnimationFrame ||
+      window.webkitRequestAnimationFrame ||
+      window.mozRequestAnimationFrame ||
+      window.oRequestAnimationFrame ||
+      window.msRequestAnimaitonFrame ||
+      function(callback) {
+        window.setTimeout(callback, 1000 / 60);
+      };
+  })();
+
+  var canvas = document.getElementById("sig-canvas_out");
+  var ctx = canvas.getContext("2d");
+  ctx.strokeStyle = "#222222";
+  ctx.lineWidth = 4;
+  var movement = false;
+
+  var drawing = false;
+  var mousePos = {
+    x: 0,
+    y: 0
+  };
+  var lastPos = mousePos;
+
+  canvas.addEventListener("mousedown", function(e) {
+    drawing = true;
+    lastPos = getMousePos(canvas, e);
+  }, false);
+
+  canvas.addEventListener("mouseup", function(e) {
+    drawing = false;
+  }, false);
+
+  canvas.addEventListener("mousemove", function(e) {
+    mousePos = getMousePos(canvas, e);
+  }, false);
+
+  // Add touch event support for mobile
+  canvas.addEventListener("touchstart", function(e) {
+
+  }, false);
+
+  canvas.addEventListener("touchmove", function(e) {
+    var touch = e.touches[0];
+    var me = new MouseEvent("mousemove", {
+      clientX: touch.clientX,
+      clientY: touch.clientY
+    });
+    canvas.dispatchEvent(me);
+  }, false);
+
+  canvas.addEventListener("touchstart", function(e) {
+    mousePos = getTouchPos(canvas, e);
+    var touch = e.touches[0];
+    var me = new MouseEvent("mousedown", {
+      clientX: touch.clientX,
+      clientY: touch.clientY
+    });
+    canvas.dispatchEvent(me);
+  }, false);
+
+  canvas.addEventListener("touchend", function(e) {
+    var me = new MouseEvent("mouseup", {});
+    canvas.dispatchEvent(me);
+  }, false);
+
+  function getMousePos(canvasDom, mouseEvent) {
+    var rect = canvasDom.getBoundingClientRect();
+    return {
+      x: mouseEvent.clientX - rect.left,
+      y: mouseEvent.clientY - rect.top
+    }
+  }
+
+  function getTouchPos(canvasDom, touchEvent) {
+    var rect = canvasDom.getBoundingClientRect();
+    return {
+      x: touchEvent.touches[0].clientX - rect.left,
+      y: touchEvent.touches[0].clientY - rect.top
+    }
+  }
+
+  function renderCanvas() {
+    if (drawing) {
+      movement = true;
+      ctx.moveTo(lastPos.x, lastPos.y);
+      ctx.lineTo(mousePos.x, mousePos.y);
+      ctx.stroke();
+      lastPos = mousePos;
+    }
+  }
+
+  // Prevent scrolling when touching the canvas
+  document.body.addEventListener("touchstart", function(e) {
+    if (e.target == canvas) {
+      e.preventDefault();
+      movement = true;
+    }
+  }, false);
+  document.body.addEventListener("touchend", function(e) {
+    if (e.target == canvas) {
+      e.preventDefault();
+      movement = true;
+    }
+  }, false);
+  document.body.addEventListener("touchmove", function(e) {
+    if (e.target == canvas) {
+      e.preventDefault();
+      movement = true;
+    }
+  }, false);
+  document.body.addEventListener("touchcancel", function(e) {
+    if (e.target == canvas) {
+      e.preventDefault();
+      movement = true;
+    }
+  }, false);
+
+  (function drawLoop() {
+    requestAnimFrame(drawLoop);
+    renderCanvas();
+  })();
+
+  function clearCanvas() {
+    canvas.width = canvas.width;
+  }
+
+  // Set up the UI
+  var sigText = document.getElementById("sig-dataUrl_out");
+  var clearBtn = document.getElementById("sig-clearBtn_out");
+  var submitBtn = document.getElementById("sig-submitBtn");
+  clearBtn.addEventListener("click", function(e) {
+    clearCanvas();
+  }, false);
+  submitBtn.addEventListener("click", function(e) {
+    if(movement){
+    var dataUrl = canvas.toDataURL();
+    sigText.innerHTML = dataUrl;
+    } else {
+      sigText.innerHTML = "Empty"
+    }
+  }, false);
+
+})();
+</script>
+{% endblock content %}

@@ -1,0 +1,51 @@
+{% extends "Schedule/base.html" %}
+{% block content %}
+     <div>
+        <h3 style="align-items: center">סידור בין תאריך {{ days|first|date:"d.m" }} לתאריך {{ days|last|date:"d.m" }}</h3>
+            </div>
+    <div class="content-section row">
+        <div>
+<table class="responsive-table-input-matrix" style="align-items: center">
+		<thead>
+        <tr>
+            <th>שם</th>
+            {% for i in "1"|to_array2:num_weeks %}
+                <th>בוקר {{ i }}</th>
+                <th>צהריים {{ i }}</th>
+            {% endfor %}
+            <th>לילה</th>
+            <th>סופ"ש</th>
+		</tr>
+		</thead>
+		<tbody>
+        {% for user, value in table.items %}
+            <tr style="align-content: end">
+            <td>{{ user }}</td>
+                {% for count in value %}
+                    {% if "morning" in count %}
+                        {% if value|get_item:count < 2 %}
+                            <td style="color: red">{{ value|get_item:count }}</td>
+                            {% else %}
+                            <td style="color: forestgreen">{{ value|get_item:count }}</td>
+                            {% endif %}
+                    {% else %}
+                    {% if value|get_item:count < 1 %}
+                            <td style="color: red">{{ value|get_item:count }}</td>
+                            {% else %}
+                            <td style="color: forestgreen">{{ value|get_item:count }}</td>
+                            {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        <tr style="align-content: end">
+            <td>סה"כ</td>
+        {% for user, value in sum.items %}
+            <td>{{ value }}</td>
+        {% endfor %}
+        </tr>
+		</tbody>
+	</table>
+            </div>
+        </div>
+{% endblock content %}

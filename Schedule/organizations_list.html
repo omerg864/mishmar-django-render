@@ -1,0 +1,178 @@
+{% extends "Schedule/base.html" %}
+{% block content %}
+{% if request.user.username != 'metagber' %}
+    {% for organization in organizations %}
+        <h3 style="align-items: center">סידור בין תאריך {{ organization|get_days|first|date:"d.m" }} לתאריך {{ organization|get_days|last|date:"d.m" }}</h3>
+        {% if organization.published or organization|get_num_organization != 0 %}
+        {% for week in organization|get_weeks %}
+        <table class="responsive-table-input-matrix" style="align-items: center">
+		<thead>
+        <tr>
+			<th>תאריך</th>
+			{% for day in organization|get_days|clip_days:forloop.counter0 %}
+                <th>{{ day|date:"d.m" }}</th>
+                {% endfor %}
+		</tr>
+		<tr>
+			<th></th>
+			<th>ראשון</th>
+			<th>שני</th>
+			<th>שלישי</th>
+			<th>רביעי</th>
+			<th>חמישי</th>
+			<th>שישי</th>
+			<th>שבת</th>
+		</tr>
+		</thead>
+		<tbody>
+
+		<tr style="align-content: end">
+			<td>6:30-14:30</td>
+			<td>{{week.Day1_630}}</td>
+			<td>{{week.Day2_630}}</td>
+            <td>{{week.Day3_630}}</td>
+            <td>{{week.Day4_630}}</td>
+            <td>{{week.Day5_630}}</td>
+            <td>{{week.Day6_630}}</td>
+            <td>{{week.Day7_630}}</td>
+		</tr>
+		<tr>
+			<td>7:00-15:00<br/>סריקה</td>
+			<td>{{week.Day1_700_search}}</td>
+			<td>{{week.Day2_700_search}}</td>
+            <td>{{week.Day3_700_search}}</td>
+            <td>{{week.Day4_700_search}}</td>
+            <td>{{week.Day5_700_search}}</td>
+            <td>{{week.Day6_700_search}}</td>
+            <td>{{week.Day7_700_search}}</td>
+		</tr>
+		<tr>
+		<td>7:00-15:00<br/>אחמ"ש</td>
+			<td>{{week.Day1_700_manager}}</td>
+			<td>{{week.Day2_700_manager}}</td>
+            <td>{{week.Day3_700_manager}}</td>
+            <td>{{week.Day4_700_manager}}</td>
+            <td>{{week.Day5_700_manager}}</td>
+            <td>{{week.Day6_700_manager}}</td>
+            <td>{{week.Day7_700_manager}}</td>
+		</tr>
+        <tr>
+			<td>7:20-15:20</td>
+			<td>{{week.Day1_720_1}}</td>
+			<td>{{week.Day2_720_1}}</td>
+            <td>{{week.Day3_720_1}}</td>
+            <td>{{week.Day4_720_1}}</td>
+            <td>{{week.Day5_720_1}}</td>
+            <td>{{week.Day6_720_1}}</td>
+            <td>{{week.Day7_720_1}}</td>
+		</tr>
+		<tr>
+			<td>7:20-17:20<br/>משיכה</td>
+			<td>{{week.Day1_720_pull}}</td>
+			<td>{{week.Day2_720_pull}}</td>
+            <td>{{week.Day3_720_pull}}</td>
+            <td>{{week.Day4_720_pull}}</td>
+            <td>{{week.Day5_720_pull}}</td>
+            <td>{{week.Day6_720_pull}}</td>
+            <td>{{week.Day7_720_pull}}</td>
+		</tr>
+        <tr>
+			<td>7:20-15:20</td>
+			<td>{{week.Day1_720_2}}</td>
+			<td>{{week.Day2_720_2}}</td>
+            <td>{{week.Day3_720_2}}</td>
+            <td>{{week.Day4_720_2}}</td>
+            <td>{{week.Day5_720_2}}</td>
+            <td>{{week.Day6_720_2}}</td>
+            <td>{{week.Day7_720_2}}</td>
+		</tr>
+        <tr>
+			<td>7:20-15:20</td>
+			<td>{{week.Day1_720_3}}</td>
+			<td>{{week.Day2_720_3}}</td>
+            <td>{{week.Day3_720_3}}</td>
+            <td>{{week.Day4_720_3}}</td>
+            <td>{{week.Day5_720_3}}</td>
+            <td>{{week.Day6_720_3}}</td>
+            <td>{{week.Day7_720_3}}</td>
+		</tr>
+        <tr>
+			<td>14:00-22:00</td>
+			<td>{{week.Day1_1400}}</td>
+			<td>{{week.Day2_1400}}</td>
+            <td>{{week.Day3_1400}}</td>
+            <td>{{week.Day4_1400}}</td>
+            <td>{{week.Day5_1400}}</td>
+            <td>{{week.Day6_1400}}</td>
+            <td>{{week.Day7_1400}}</td>
+		</tr>
+        <tr>
+			<td>15:00-19:00</td>
+			<td>{{week.Day1_1500_1900}}</td>
+			<td>{{week.Day2_1500_1900}}</td>
+            <td>{{week.Day3_1500_1900}}</td>
+            <td>{{week.Day4_1500_1900}}</td>
+            <td>{{week.Day5_1500_1900}}</td>
+            <td>{{week.Day6_1500_1900}}</td>
+            <td>{{week.Day7_1500_1900}}</td>
+		</tr>
+        <tr>
+			<td>15:00-23:00</td>
+			<td>{{week.Day1_1500}}</td>
+			<td>{{week.Day2_1500}}</td>
+            <td>{{week.Day3_1500}}</td>
+            <td>{{week.Day4_1500}}</td>
+            <td>{{week.Day5_1500}}</td>
+            <td>{{week.Day6_1500}}</td>
+            <td>{{week.Day7_1500}}</td>
+		</tr>
+        <tr>
+			<td>לילה</td>
+			<td>{{week.Day1_2300}}</td>
+			<td>{{week.Day2_2300}}</td>
+            <td>{{week.Day3_2300}}</td>
+            <td>{{week.Day4_2300}}</td>
+            <td>{{week.Day5_2300}}</td>
+            <td>{{week.Day6_2300}}</td>
+            <td>{{week.Day7_2300}}</td>
+		</tr>
+        <tr>
+			<td>הערות</td>
+			<td>{{week.Day1_notes}}</td>
+			<td>{{week.Day2_notes}}</td>
+            <td>{{week.Day3_notes}}</td>
+            <td>{{week.Day4_notes}}</td>
+            <td>{{week.Day5_notes}}</td>
+            <td>{{week.Day6_notes}}</td>
+            <td>{{week.Day7_notes}}</td>
+		</tr>
+		</tbody>
+	</table>
+            {% endfor %}
+        {% else %}
+        <h3 style="margin-top: 10px">עדיין לא פורסם סידור</h3>
+        {% endif %}
+            {% endfor %}
+    {% if is_paginated %}
+
+      {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info mb-4" href="?page=1">ראשון</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">קודם</a>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">הבא</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">אחרון</a>
+      {% endif %}
+
+    {% endif %}
+{% endif %}
+{% endblock content %}

@@ -1,0 +1,37 @@
+{% extends "Schedule/base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+<html dir = rtl lang="he">
+{% block content %}
+{% if user.username != 'metagber' %}
+    {% if manager %}
+        <h1>{{ userview }}</h1>
+    {% endif %}
+    {% if empty %}
+        <h1>לא הגשת משמרות עדיין וכבר לא ניתן השבוע</h1>
+    {% elif not submitting %}
+        <h3>לא ניתן להגיש/לשנות משמרות כבר</h3>
+        <h5>מתאריך {{ days|first|date:"d/m" }} עד לתאריך {{ days|last|date:"d/m" }} הגשה אחרונה: </h5>
+        {% block view_form %}
+    {% include "Schedule/ShiftView.html" %}
+{% endblock %}
+    {% else %}
+    <h1>הגשת משמרות</h1>
+
+<h3>מתאריך {{ days|first|date:"d/m" }} עד לתאריך {{ days|last|date:"d/m" }}</h3>
+        <form method="POST">
+        {% csrf_token %}
+        <fieldset class="form-group">
+    {% block form %}
+    {% include "Schedule/ShiftView.html" %}
+{% endblock %}
+            </fieldset>
+            <div class="form-group">
+            <div class="con buttons">
+      <button class="but effect01" type="submit"><span>הגשה</span></button>
+    </div>
+     </div>
+        </form>
+    {% endif %}
+    {% endif %}
+{% endblock content %}

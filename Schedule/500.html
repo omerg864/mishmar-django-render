@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>500 Error page</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'Schedule/404.css' %}">
+    </head>
+    <body>
+        <div id="error-frame">
+            <div class="container">
+                <h1>500</h1>
+                <h4>תקלה בהצגת העמוד</h4>
+                <p>תקלה בהצגת העמוד צא ממנו ונסה שוב, אם התקלה נמשכת דווח למנהל אתר!</p>
+                <div class="btn">
+                    <a href="{% url 'Schedule-Home'%}">עמוד הבית</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

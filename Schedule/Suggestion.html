@@ -1,0 +1,118 @@
+{% extends "Schedule/base.html" %}
+{% block content %}
+    <h1>הצעה לסידור</h1>
+    <h3>מתאריך {{ days.day0|date:"d/m" }} עד לתאריך {{ days.day13|date:"d/m" }}</h3>
+    <div class="row">
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+                <div class="form-group">
+    <div class="con buttons">
+      <button class="but effect01" type="submit" name="organize"><span>סדר</span></button>
+    </div>
+        </div>
+            <div class="form-group">
+    <div class="con buttons">
+      <button class="but effect01" type="submit" name="excel"><span>יצא לאקסל</span></button>
+    </div>
+        </div>
+            </div>
+        <fieldset class="form-group">
+    <div>
+        {% for week in weeks %}
+    <table class="responsive-table-input-matrix" style="align-items: center">
+		<thead>
+		<tr>
+			<th>תאריך</th>
+            {% for day in days|clip_days:forloop.counter0 %}
+                <th>{{ day|date:"d.m" }}</th>
+                {% endfor %}
+		</tr>
+		<tr>
+			<th></th>
+			<th>ראשון</th>
+			<th>שני</th>
+			<th>שלישי</th>
+			<th>רביעי</th>
+			<th>חמישי</th>
+			<th>שישי</th>
+			<th>שבת</th>
+		</tr>
+		</thead>
+		<tbody>
+        <tr style="align-items: center">
+			<td>כמות מאבטחים<br>בוקר</td>
+			<td><input class="integerSpinner" name="M0" type="number" min="0" value="{{ guardsnumbers.M0 }}"></td>
+			<td><input class="integerSpinner" name="M1" type="number" min="0" value="{{ guardsnumbers.M1 }}"></td>
+            <td><input class="integerSpinner" name="M2" type="number" min="0" value="{{ guardsnumbers.M2 }}"></td>
+            <td><input class="integerSpinner" name="M3" type="number" min="0" value="{{ guardsnumbers.M3 }}"></td>
+            <td><input class="integerSpinner" name="M4" type="number" min="0" value="{{ guardsnumbers.M4 }}"></td>
+            <td><input class="integerSpinner" name="M5" type="number" min="0" value="{{ guardsnumbers.M5 }}"></td>
+            <td><input class="integerSpinner" name="M6" type="number" min="0" value="{{ guardsnumbers.M6 }}"></td>
+		</tr>
+		<tr style="align-content: end">
+			<td>בוקר</td>
+            <td><textarea class="suggestion_morning">{{ organized.M0 }}</textarea></td>
+			<td><textarea class="suggestion_morning">{{ organized.M1 }}</textarea></td>
+            <td><textarea class="suggestion_morning">{{ organized.M2 }}</textarea></td>
+            <td><textarea class="suggestion_morning">{{ organized.M3 }}</textarea></td>
+            <td><textarea class="suggestion_morning">{{ organized.M4 }}</textarea></td>
+            <td><textarea class="suggestion_morning">{{ organized.M5 }}</textarea></td>
+            <td><textarea class="suggestion_morning">{{ organized.M6 }}</textarea></td>
+		</tr>
+        <tr style="align-items: center">
+			<td>כמות מאבטחים<br>צהריים</td>
+			<td><input class="integerSpinner" name="A0" type="number" min="0" value="{{ guardsnumbers.A0 }}"></td>
+			<td><input class="integerSpinner" name="A1" type="number" min="0" value="{{ guardsnumbers.A1 }}"></td>
+            <td><input class="integerSpinner" name="A2" type="number" min="0" value="{{ guardsnumbers.A2 }}"></td>
+            <td><input class="integerSpinner" name="A3" type="number" min="0" value="{{ guardsnumbers.A3 }}"></td>
+            <td><input class="integerSpinner" name="A4" type="number" min="0" value="{{ guardsnumbers.A4 }}"></td>
+            <td><input class="integerSpinner" name="A5" type="number" min="0" value="{{ guardsnumbers.A5 }}"></td>
+            <td><input class="integerSpinner" name="A6" type="number" min="0" value="{{ guardsnumbers.A6 }}"></td>
+		</tr>
+		<tr>
+			<td>צהריים</td>
+			<td><textarea class="suggestion_noon">{{ organized.A0 }}</textarea></td>
+			<td><textarea class="suggestion_noon">{{ organized.A1 }}</textarea></td>
+            <td><textarea class="suggestion_noon">{{ organized.A2 }}</textarea></td>
+            <td><textarea class="suggestion_noon">{{ organized.A3 }}</textarea></td>
+            <td><textarea class="suggestion_noon">{{ organized.A4 }}</textarea></td>
+            <td><textarea class="suggestion_noon">{{ organized.A5 }}</textarea></td>
+            <td><textarea class="suggestion_noon">{{ organized.A6 }}</textarea></td>
+		</tr>
+        <tr style="align-items: center">
+			<td>כמות מאבטחים<br>לילה</td>
+			<td><input class="integerSpinner" name="N0" type="number" min="0" value="{{ guardsnumbers.N0 }}"></td>
+			<td><input class="integerSpinner" name="N1" type="number" min="0" value="{{ guardsnumbers.N1 }}"></td>
+            <td><input class="integerSpinner" name="N2" type="number" min="0" value="{{ guardsnumbers.N2 }}"></td>
+            <td><input class="integerSpinner" name="N3" type="number" min="0" value="{{ guardsnumbers.N3 }}"></td>
+            <td><input class="integerSpinner" name="N4" type="number" min="0" value="{{ guardsnumbers.N4 }}"></td>
+            <td><input class="integerSpinner" name="N5" type="number" min="0" value="{{ guardsnumbers.N5 }}"></td>
+            <td><input class="integerSpinner" name="N6" type="number" min="0" value="{{ guardsnumbers.N6 }}"></td>
+		</tr>
+		<tr>
+		<td>לילה</td>
+			<td><textarea class="suggestion_night">{{ organized.N0 }}</textarea></td>
+			<td><textarea class="suggestion_night">{{ organized.N1 }}</textarea></td>
+            <td><textarea class="suggestion_night">{{ organized.N2 }}</textarea></td>
+            <td><textarea class="suggestion_night">{{ organized.N3 }}</textarea></td>
+            <td><textarea class="suggestion_night">{{ organized.N4 }}</textarea></td>
+            <td><textarea class="suggestion_night">{{ organized.N5 }}</textarea></td>
+            <td><textarea class="suggestion_night">{{ organized.N6 }}</textarea></td>
+		</tr>
+		</tbody>
+	</table>
+        {% endfor %}
+        </div>
+        </fieldset>
+        </form>
+    </div>
+            <div dir="rtl" class="row">
+                <notes >
+                    <a>הערות:</a>
+                </notes>
+                <div STYLE="margin-top: 1.5em; white-space: pre-line;">
+                    {{ notes }}
+                </div>
+            </div>
+{% endblock content %}

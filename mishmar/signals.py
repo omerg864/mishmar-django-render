@@ -67,5 +67,6 @@ def create_weeks(sender, instance, created, **kwargs):
         for org in organizations:
             weeks = Week.objects.all().filter(date=org.date)
             for w in weeks:
-                w.shifts[f'{instance.day}@{instance.title}@{instance.id}'] = ""
-                w.save()
+                for i in range(1, 8):
+                    w.shifts[f'{i}@{instance.title}@{instance.id}'] = ""
+                    w.save()

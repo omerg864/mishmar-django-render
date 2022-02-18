@@ -41,19 +41,6 @@ from django.utils import translation
 
 default_language = os.environ.get("DEFAULT_LANGUAGE")
 
-if not Group.objects.filter(name='manager').exists():
-    Group.objects.create(name='manager')
-
-if not Group.objects.filter(name='staff').exists():
-    Group.objects.create(name='staff')
-
-if not User.objects.filter(username='metagber').exists():
-    User.objects.create_user(username='metagber', password='mishmar123')
-
-if len(Settings.objects.all()) == 0:
-    new_settings = Settings(submitting=True, pin_code=1234, officer="", city="", max_seq0=2, max_seq1=2, friday_morning=False, friday_noon=False)
-    new_settings.save()
-
 base_strings = {1: "הגשת משמרות", 2: "סידור", 3: "סידורים", 4: "הגדרות", 5: "ניהול נתונים", 6: "פרופיל", 7: "התנתק",
                 8: "התחבר", 9: "הירשם"}
 
@@ -98,9 +85,23 @@ def settings_view(request):
     }
     return render(request, "mishmar/settings.html", context)
 
+def start_app():
+    if not Group.objects.filter(name='manager').exists():
+        Group.objects.create(name='manager')
+
+    if not Group.objects.filter(name='staff').exists():
+        Group.objects.create(name='staff')
+
+    if not User.objects.filter(username='metagber').exists():
+        User.objects.create_user(username='metagber', password='mishmar123')
+
+    if len(Settings.objects.all()) == 0:
+        new_settings = Settings(submitting=True, pin_code=1234, officer="", city="", max_seq0=2, max_seq1=2, friday_morning=False, friday_noon=False)
+        new_settings.save()
 
 # Home view
 def home(request):
+    start_app()
     if request.user.is_authenticated:
         profile = USettings.objects.all().filter(user=request.user).last()
     else:

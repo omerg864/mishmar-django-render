@@ -61,7 +61,7 @@ def create_weeks(sender, instance, created, **kwargs):
             nw.save()
 
 @receiver(post_save, sender=OrganizationShift)
-def create_weeks(sender, instance, created, **kwargs):
+def change_weeks(sender, instance, created, **kwargs):
     if created:
         organizations = Organization.objects.all().order_by('-date')
         for org in organizations:

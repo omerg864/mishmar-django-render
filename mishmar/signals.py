@@ -15,7 +15,7 @@ def send_number_served(sender, instance, created, **kwargs):
     if created:
         lenShifts = len(Shift.objects.all().filter(date=instance.date))
         shifts = Shift.objects.all().filter(date=instance.date)
-        users = User.objects.all().exclude('metagber').exclude('admin')
+        users = User.objects.all().exclude(username='metagber').exclude(username='admin')
         guards_sent = []
         guards_not_sent = []
         emails = []

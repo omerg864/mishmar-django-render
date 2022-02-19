@@ -53,6 +53,13 @@ class OrganizationShift(models.Model):
     manager = models.BooleanField(default=False, verbose_name="אחמש", blank=True)
     pull = models.BooleanField(default=False, verbose_name="משיכה", blank=True)
 
+    def __str__(self):
+        return f'{self.title} - {self.sub_title} - {self.id} - {self.shift_num}'
+    
+    class Meta:
+        verbose_name = "משמרת מבנה סידור"
+        verbose_name_plural = "משמרות מבנה סידור"
+
 
 class Week(models.Model):
     date = models.DateField(default=timezone.now)

@@ -72,9 +72,10 @@ def register(request, *args, **kwargs):
         pc = int(request.POST.get("pin_code"))
         if pc != pin_code:
             messages.warning(request, "קוד זיהוי לא נכון")
-        elif User.objects.all().filter(email=request.POST.get("email")).count() > 0:
+        elif User.objects.all().filter(email=request.POST.get("email").lower()).count() > 0:
             messages.warning(request, "כתובת דואר אלקטרוני קיימת כבר")
         elif form.is_valid():
+            form.email = request.POST.get("email").lower()
             form.save(commit=True)
             username = form.cleaned_data.get("username")
             messages.success(request, f'{username}נוצר חשבון ל ')
@@ -105,7 +106,7 @@ def profile(request):
         except:
             print("no image")
         if u_form.is_valid():
-            email = u_form.cleaned_data.get("email")
+            email = u_form.cleaned_data.get("email").lower()
             if User.objects.filter(email=email).count() > 0:
                     if request.user != User.objects.filter(email=email).first():
                         messages.warning(request, f'כתובת דואר אלקטרוני קיימת כבר')
@@ -196,7 +197,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                     messages.warning(request, f'שם משתמש לא תקין')
                     return redirect("user-list")
                 user.username = username
-                email = request.POST.get(f"email{id}")
+                email = request.POST.get(f"email{id}").lower()
                 if User.objects.filter(email=email).count() > 0:
                     if user != User.objects.filter(email=email).first():
                         messages.warning(request, f'כתובת דואר אלקטרוני קיימת כבר')

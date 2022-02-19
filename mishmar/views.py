@@ -36,7 +36,7 @@ from deep_translator import GoogleTranslator
 import os
 from django.views.generic.dates import DayArchiveView, MonthArchiveView
 from django.utils import translation
-
+from .decorators import user_staff_permission
 
 
 default_language = os.environ.get("DEFAULT_LANGUAGE")
@@ -65,7 +65,7 @@ guards_num["M6"] = 2
 
 
 # Website settings view
-@staff_member_required
+@user_staff_permission
 def settings_view(request):
     settings = Settings.objects.all().last()
     if request.method == 'POST':
@@ -863,7 +863,7 @@ class ServedSumListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 
 # View to staff member to edit shifts served 
-@staff_member_required
+@user_staff_permission
 def shift_update_view(request, pk=None):
     main_shift = Shift.objects.all().filter(id=pk).first()
     organization = Organization.objects.all().filter(date=main_shift.date).first()
@@ -1257,7 +1257,7 @@ class ServedSumShiftDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
 
 
 # View to update organizaytion by staff memebers
-@staff_member_required
+@user_staff_permission
 def organization_update(request, pk=None):
     organization = Organization.objects.all().filter(id=pk).first()
     weeks = Week.objects.all().filter(date=organization.date).order_by('num_week')
@@ -1344,7 +1344,7 @@ class OrganizationListView(LoginRequiredMixin, ListView):
         ctx["shifts"] = shifts
         return ctx
 
-@staff_member_required
+@user_staff_permission
 def data_usage_view(request):
     context = {}
     shifts_organization_sum = 0
@@ -1377,7 +1377,7 @@ def data_usage_view(request):
             return redirect('delete-logs-data')
     return render(request, "mishmar/data-usage.html", context)
 
-@staff_member_required
+@user_staff_permission
 def delete_organization_data_view(request):
     logs_sum = 0
     logs_sum += ValidationLog.objects.all().count()
@@ -1410,7 +1410,7 @@ def delete_organization_data_view(request):
     return render(request, "mishmar/data-logs-delete.html", context)
 
 
-@staff_member_required
+@user_staff_permission
 def delete_logs_data_view(request):
     logs_sum = 0
     logs_sum += ValidationLog.objects.all().count()
@@ -1569,7 +1569,7 @@ class OrganizationSuggestionView(LoginRequiredMixin, UserPassesTestMixin, Detail
 
 
 # Staff member panel View
-@staff_member_required
+@user_staff_permission
 def staff_panel_view(request):
     settings = Settings.objects.all().first()
     context = {}
@@ -1593,7 +1593,7 @@ def staff_panel_view(request):
 
 
 # Organization shifts design View
-@staff_member_required
+@user_staff_permission
 def organization_shift_view(request):
     context = {}
     days = []

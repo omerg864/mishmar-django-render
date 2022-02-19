@@ -1591,7 +1591,7 @@ def staff_panel_view(request):
         settings.submitting = checked
         settings.save()
         messages.success(request, "השתנה בהצלחה")
-        redirect('staff-panel')
+        return redirect('staff-panel')
     context = {
         "checked": checked,
         "today": timezone.now(),

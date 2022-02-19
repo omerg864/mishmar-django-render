@@ -14,7 +14,7 @@ import os
 def send_number_served(sender, instance, created, **kwargs):
     if created:
         lenShifts = len(Shift.objects.all().filter(date=instance.date))
-        shifts = Shift.objects.all().filter(date=instance.date)
+        shifts = Shift.objects.all().filter(date=instance.date).exclude(username__username='admin')
         users = User.objects.all().exclude(username='metagber').exclude(username='admin')
         guards_sent = []
         guards_not_sent = []
@@ -23,7 +23,7 @@ def send_number_served(sender, instance, created, **kwargs):
             if user.groups.filter(name="staff").exists():
                 emails.append(user.email)
         for s in shifts:
-            user = users.filter(username=s.username).first()
+            user = users.filter(id=s.username.id).first()
             user_settings = USettings.objects.all().filter(user=user).first()
             guards_sent.append(user_settings.nickname)
         for u in users:

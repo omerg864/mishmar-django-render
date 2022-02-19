@@ -1733,7 +1733,7 @@ class EventCreateView(CreateView, UserPassesTestMixin, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         ctx = super(EventCreateView, self).get_context_data(**kwargs)
-        users = User.objects.all().exclude(username="metagber")
+        users = User.objects.all().exclude(username="metagber").exclude(username="admin")
         names = []
         for user in users:
             u_settings = USettings.objects.all().filter(user=user).first()
@@ -1763,7 +1763,7 @@ class EventUpdateView(UpdateView, UserPassesTestMixin, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         ctx = super(EventCreateView, self).get_context_data(**kwargs)
-        users = User.objects.all().exclude(username="metagber")
+        users = User.objects.all().exclude(username="metagber").exclude(username="admin")
         names = []
         for user in users:
             u_settings = USettings.objects.all().filter(user=user).first()
@@ -1799,7 +1799,7 @@ class EventListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super(EventListView, self).get_context_data(**kwargs)
-        users = User.objects.all().exclude(username="metagber")
+        users = User.objects.all().exclude(username="metagber").exclude(username="admin")
         names = []
         for user in users:
             u_settings = USettings.objects.all().filter(user=user).first()

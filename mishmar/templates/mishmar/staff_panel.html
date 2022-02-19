@@ -58,7 +58,7 @@
             <legend class="border-bottom mb-4">ניהול יומן חימוש</legend>
             <div style="margin-right: 8px; flex: 1; display: flex; justify-content: center">
                     <div style="margin-right: 0.5em">
-            <h3><a class="article-title" href="{% url 'armingmonth-all' year=year month=today|date:'b' %}">יומן חימוש חודשי</a></h3>
+            <h3><a class="article-title" href="{% url 'armingmonth-all' year=year month=today|date:'b'|getmonth %}">יומן חימוש חודשי</a></h3>
                         </div>
                 <h4 style="margin-right: 1em">|</h4>
                     <div style="margin-right: 1em; margin-left: 1em">

@@ -349,7 +349,7 @@ input[type=date]{
     border-radius: 2px;
 }
 
-.checkbox
+input.checkbox[type=checkbox]
 {
     position: relative;
     width: 100%;

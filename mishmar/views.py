@@ -1599,9 +1599,14 @@ def organization_shift_view(request):
     for x in range(7):
         days.append(datetime.date.today() + datetime.timedelta(days=x))
     shifts = OrganizationShift.objects.all().order_by('shift_num', 'index')
+    if shifts.filter(shift_num=1).count() > 0:
+        last_index = shifts.filter(shift_num=1).order_by('index').last().index + 1
+    else:
+        last_index = 1
     context = {
         "shifts": shifts,
         "days": days,
+        "last_index": last_index
     }
     if request.method == 'POST':
         if 'add' in request.POST or 'change' in request.POST:
@@ -1612,12 +1617,23 @@ def organization_shift_view(request):
                 shift_id = request.POST.get('change')
                 shift = OrganizationShift.objects.all().filter(id=shift_id).first()
             shift.shift_num = request.POST.get(f"shift_num{shift_id}")
-            shift.index = request.POST.get(f"index_num{shift_id}")
+            shift.index = int(request.POST.get(f"index_num{shift_id}"))
             shift.title = request.POST.get(f"title{shift_id}")
             shift.sub_title = request.POST.get(f"sub_title{shift_id}")
             shift.opening = checkbox(request.POST.get(f"opening{shift_id}"))
             shift.manager = checkbox(request.POST.get(f"manager{shift_id}"))
             shift.pull = checkbox(request.POST.get(f"pull{shift_id}"))
+            if len(OrganizationShift.objects.filter(index=shift.index, shift_num=shift.shift_num)) > 0:
+                print(OrganizationShift.objects.filter(index=shift.index))
+                shifts = OrganizationShift.objects.filter(index__gte=shift.index, shift_num=shift.shift_num)
+                index_temp = int(shift.index)
+                for s in shifts:
+                    if s.id != shift.id:
+                        print(s.index)
+                        print(s.title)
+                        s.index = index_temp + 1
+                        s.save()
+                        index_temp += 1
             shift.save()
             if 'add' in request.POST:
                 messages.success(request, "נוסף בהצלחה")
@@ -1627,6 +1643,15 @@ def organization_shift_view(request):
         elif 'delete' in request.POST:
             shift_id = request.POST.get('delete')
             shift = OrganizationShift.objects.all().filter(id=shift_id).first()
+            if len(OrganizationShift.objects.filter(index=shift.index, shift_num=shift.shift_num)) > 0:
+                print(OrganizationShift.objects.filter(index=shift.index))
+                shifts = OrganizationShift.objects.filter(index__gte=shift.index, shift_num=shift.shift_num)
+                for s in shifts:
+                    if s.id != shift.id:
+                        print(s.index)
+                        print(s.title)
+                        s.index = int(s.index) - 1
+                        s.save()
             shift.delete()
             messages.success(request, "נמחק בהצלחה")
             return HttpResponseRedirect(request.path_info)

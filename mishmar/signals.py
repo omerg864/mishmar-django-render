@@ -63,14 +63,6 @@ def create_weeks(sender, instance, created, **kwargs):
 @receiver(post_save, sender=OrganizationShift)
 def change_weeks(sender, instance, created, **kwargs):
     if created:
-        if len(OrganizationShift.objects.filter(index=instance.index)) > 1:
-            skills = OrganizationShift.objects.filter(index__gte=instance.index)
-            temp = instance.index
-            for skill in skills:
-                if skill.id != instance.id:
-                    skill.index = instance.index + 1
-                    skill.save()
-                    instance.index += 1
         organizations = Organization.objects.all().order_by('-date')
         for org in organizations:
             weeks = Week.objects.all().filter(date=org.date)

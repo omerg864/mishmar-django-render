@@ -15,7 +15,7 @@ SECRET_KEY = os.environ.get('MISHMAR_DYNAMIC_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
 
-ALLOWED_HOSTS = ["mishmar-ramla.herokuapp.com", "127.0.0.1"]
+ALLOWED_HOSTS = [os.environ.get('HOST_ADDRESS'), "127.0.0.1"]
 
 # Application definition
 
@@ -90,7 +90,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'he-IL'
+
 
 TIME_ZONE = 'Israel'
 

@@ -19,8 +19,10 @@
             {% csrf_token %}
     <tr style="align-content: end">
         <td><input type="date" name="date" id="date" required {% if view_type == 'create' %} value="{{today|date:"Y-m-d"}}" {% else %} value="{{event.date2|date:"Y-m-d"}}" {% endif %}></td>
-        <td><select name="names">
-            <option required value="כולם"><a>כולם</a></option>
+        <td><select required name="names">
+            <option value="כולם"  {% if view_type == 'update' %}  {% if event.nickname == "כולם" %} selected {% endif %} {% endif %}><a>כולם</a></option>
+            <option value="מנהלים"  {% if view_type == 'update' %}  {% if event.nickname == "מנהלים" %} selected {% endif %} {% endif %}><a>מנהלים</a></option>
+            <option value="אחמשים"  {% if view_type == 'update' %}  {% if event.nickname == "אחמשים" %} selected {% endif %} {% endif %}><a>אחמ"שים</a></option>
             {% for name in names %}
             <option value="{{ name }}" {% if view_type == 'update' %}  {% if name == event.nickname %} selected {% endif %} {% endif %}>{{ name }}</option>
             {% endfor %}

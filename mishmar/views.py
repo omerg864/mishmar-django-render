@@ -760,6 +760,14 @@ def shift_view(request):
                     message = f'לא לשכוח בתאריך {ev.date2} יש {ev.description}'
                     message = translate_text(message, request.user, "hebrew")
                     messages.info(request, message)
+                elif ev.nickname == 'מנהלים' and isStaff(request.user):
+                    message = f'לא לשכוח בתאריך {ev.date2} יש {ev.description}'
+                    message = translate_text(message, request.user, "hebrew")
+                    messages.info(request, message)
+                elif ev.nickname == 'אחמשים' and is_manager(request.user):
+                    message = f'לא לשכוח בתאריך {ev.date2} יש {ev.description}'
+                    message = translate_text(message, request.user, "hebrew")
+                    messages.info(request, message)
     if request.method == 'POST':
         if not already_submitted(request.user):
             shift = Shift()

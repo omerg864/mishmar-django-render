@@ -105,7 +105,7 @@ class Organization(models.Model):
         verbose_name_plural = "סידורי עבודה"
 
 class Shift(models.Model):
-    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization1, on_delete=models.CASCADE, blank=True, null=True)
     notes = models.TextField(max_length=200, blank=True, verbose_name="הערות")
     seq_night = models.IntegerField(default=0, verbose_name="מ\"ס רצפים לילה לצהריים")

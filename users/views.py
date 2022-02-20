@@ -75,7 +75,7 @@ def register(request, *args, **kwargs):
         elif User.objects.all().filter(email=request.POST.get("email").lower()).count() > 0:
             messages.warning(request, "כתובת דואר אלקטרוני קיימת כבר")
         elif form.is_valid():
-            form.email = request.POST.get("email").lower()
+            form.cleaned_data['email'] = request.POST.get("email").lower()
             form.save(commit=True)
             username = form.cleaned_data.get("username")
             messages.success(request, f'{username}נוצר חשבון ל ')

@@ -73,6 +73,21 @@ class Week(models.Model):
         verbose_name = "שבוע סידור"
         verbose_name_plural = "שבועות סידור"
 
+class Organization1(models.Model):
+    date = models.DateField(default=timezone.now)
+    num_weeks = models.IntegerField(default=2, blank=False)
+    published = models.BooleanField(default=False, verbose_name="פרסום")
+    weeks_data = JSONField()
+
+    def __str__(self):
+        return f'{self.date}'
+
+    def get_absolute_url(self):
+        return reverse("organization-update", kwargs={"pk": self.pk})
+    
+    class Meta:
+        verbose_name = "סידור עבודה"
+        verbose_name_plural = "סידורי עבודה"
 
 class Organization(models.Model):
     date = models.DateField(default=timezone.now)
@@ -88,6 +103,24 @@ class Organization(models.Model):
     class Meta:
         verbose_name = "סידור עבודה"
         verbose_name_plural = "סידורי עבודה"
+
+class Shift(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization1, on_delete=models.CASCADE, blank=True, null=True)
+    notes = models.TextField(max_length=200, blank=True, verbose_name="הערות")
+    seq_night = models.IntegerField(default=0, verbose_name="מ\"ס רצפים לילה לצהריים")
+    seq_noon = models.IntegerField(default=0, verbose_name="מ\"ס רצפים צהריים לבוקר")
+    weeks_data = JSONField()
+
+    def __str__(self):
+        return f'{self.username.first_name} {self.username.last_name} ({self.username}) - {self.date}'
+
+    def get_absolute_url(self):
+        return reverse("shift-update", kwargs={"pk": self.pk})
+    
+    class Meta:
+        verbose_name = "הגשה"
+        verbose_name_plural = "הגשות"
 
 class Shift1(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE)

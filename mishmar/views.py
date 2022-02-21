@@ -809,7 +809,6 @@ def shift_view(request):
             messages.success(request, translate_text(f'משמרות הוגשו בהצלחה!', request.user, "hebrew"))
         else:
             messages.success(request, translate_text(f'משמרות עודכנו בהצלחה!', request.user, "hebrew"))
-        print(shift_data_temp)
         shift.weeks_data = shift_data_temp
         shift.save()
         shift_data = shift.weeks_data
@@ -1026,7 +1025,7 @@ class ShifttableView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         for j in range(self.get_object().num_weeks):
             for i in range(1, 8):
                 for shift in morning_shifts:
-                    split = weeks[j][f'{i}@{shift.id}'].split("\n")
+                    split = weeks[j][f'{i}@{shift.id}'].replace("\r", "\n").split("\n")
                     for s in split:
                         s = s.replace(" ", "")
                         if s != "":
@@ -1037,7 +1036,7 @@ class ShifttableView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                                 table_content[s]["end"] += 1
                                 sum_content["end"] += 1
                 for shift in noon_shifts:
-                    split = weeks[j][f'{i}@{shift.id}'].split("\n")
+                    split = weeks[j][f'{i}@{shift.id}'].replace("\r", "\n").split("\n")
                     for s in split:
                         s = s.replace(" ", "")
                         if s != "":
@@ -1048,7 +1047,7 @@ class ShifttableView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                                 table_content[s]["end"] += 1
                                 sum_content["end"] += 1
                 for shift in night_shifts:
-                    split = weeks[j][f'{i}@{shift.id}'].split("\n")
+                    split = weeks[j][f'{i}@{shift.id}'].replace("\r", "\n").split("\n")
                     for s in split:
                         s = s.replace(" ", "")
                         if s != "":
@@ -1278,7 +1277,6 @@ def organization_update(request, pk=None):
             return redirect("organization-table-shift", organization.id)
         elif 'upload' == action:
             weeks_dicts = uplaod_organize(request, organization)
-            print(weeks_dicts)
             temp_weeks = {}
             index = 0
             for week in weeks_dicts:
@@ -1628,13 +1626,10 @@ def organization_shift_view(request):
             shift.manager = checkbox(request.POST.get(f"manager{shift_id}"))
             shift.pull = checkbox(request.POST.get(f"pull{shift_id}"))
             if len(OrganizationShift.objects.filter(index=shift.index, shift_num=shift.shift_num)) > 0:
-                print(OrganizationShift.objects.filter(index=shift.index))
                 shifts = OrganizationShift.objects.filter(index__gte=shift.index, shift_num=shift.shift_num)
                 index_temp = int(shift.index)
                 for s in shifts:
                     if s.id != shift.id:
-                        print(s.index)
-                        print(s.title)
                         s.index = index_temp + 1
                         s.save()
                         index_temp += 1
@@ -1648,12 +1643,9 @@ def organization_shift_view(request):
             shift_id = request.POST.get('delete')
             shift = OrganizationShift.objects.all().filter(id=shift_id).first()
             if len(OrganizationShift.objects.filter(index=shift.index, shift_num=shift.shift_num)) > 0:
-                print(OrganizationShift.objects.filter(index=shift.index))
                 shifts = OrganizationShift.objects.filter(index__gte=shift.index, shift_num=shift.shift_num)
                 for s in shifts:
                     if s.id != shift.id:
-                        print(s.index)
-                        print(s.title)
                         s.index = int(s.index) - 1
                         s.save()
             shift.delete()
@@ -2027,9 +2019,9 @@ def extract_data(request, organization):
     ## Empty font Values must be of type <class 'str'> rgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme'
     ## Empty value None
     ## orange background FFFFEB9C
-    # print(str(sheet.cell(10, 3).value))
-    # print(str(sheet.cell(10, 3).font.color.rgb))  # Get the font color in the table
-    # print(str(sheet.cell(10, 3).fill.fgColor.rgb)) # background color
+    # str(sheet.cell(10, 3).value)
+    # str(sheet.cell(10, 3).font.color.rgb)  # Get the font color in the table
+    # str(sheet.cell(10, 3).fill.fgColor.rgb) # background color
     # if str(sheet.cell(10, 3).font.color.rgb) == "Values must be of type <class 'str'>":
     end_morning_str = ""
     end_noon_str = ""
@@ -2055,7 +2047,7 @@ def extract_data(request, organization):
     col = 1
     names_days = {}
     no_pull_names = {}
-    for x in range(14):
+    for x in range(organization.num_weeks * 7):
         col += 1
         names_days[f'day{x}_morning'] = []
         no_pull_names[f'day{x}'] = []
@@ -2286,6 +2278,7 @@ def uplaod_organize(request, organization):
                         insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.id}', x, 0)
                     else:
                         insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.id}')
+                    index += 1
             # morning
             index = 0
             for key in morning_keys:
@@ -2293,6 +2286,7 @@ def uplaod_organize(request, organization):
                     insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.id}', x, 0)
                 else:
                     insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], x, f'{key.id}')
+                index += 1
             # night
             index = 0
             for key in night_keys:
@@ -2300,6 +2294,7 @@ def uplaod_organize(request, organization):
                     insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_night'], f'{key.id}', x, 0)
                 else:
                     insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_night'], x, f'{key.id}')
+                index += 1
         else:
             # noon
             index = 0
@@ -2308,6 +2303,7 @@ def uplaod_organize(request, organization):
                     insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.id}', x, 0)
                 else:
                     insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.id}')
+                index += 1
             # morning
             index = 0
             for key in morning_keys:
@@ -2315,6 +2311,7 @@ def uplaod_organize(request, organization):
                     insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.id}', x, 0)
                 else:
                     insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], x, f'{key.id}')
+                index += 1
             # night
             index = 0
             for key in night_keys:
@@ -2322,6 +2319,7 @@ def uplaod_organize(request, organization):
                     insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_night'], f'{key.id}', x, 0)
                 else:
                     insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_night'], x, f'{key.id}')
+                index += 1
         if days_count == 6:
             num_week -= 1
             days_count = -1

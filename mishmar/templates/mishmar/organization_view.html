@@ -44,7 +44,7 @@
         <tr style="align-content: end">
             <td>{{ key.title }} <br> {% if key.sub_title != None %} {{key.sub_title}} {%endif %}</td>
             {% for shift in key|get_week_shift:week %}
-            <td><textarea name="day{{forloop.counter}}@{{key.title}}@{{key.id}}@{{ forloop.parentloop.parentloop.counter0 }}" >{{ shift|default_if_none:"" }}</textarea></td>
+            <td><textarea name="day{{forloop.counter}}@{{key.id}}@{{ forloop.parentloop.parentloop.counter0 }}" >{{ shift|default_if_none:"" }}</textarea></td>
             {% endfor %}
         </tr>
         {% endif %}

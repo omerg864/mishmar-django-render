@@ -1,18 +1,18 @@
 <div style="padding:10px 0">
     {% if submitting %}
-    <a>מספר רצפים לילה לצהריים: </a><input type="number" value="{{ form.seq_night }}" name="seq_night" id="id_seq_night">
+    <a>מספר רצפים לילה לצהריים: </a><input required type="number" min="0" {% if shift != None %} value="{{ shift.seq_night }}" {% else %} value="0" {% endif %} name="seq_night" id="id_seq_night">
     {% else %}
-        <a>מספר רצפים לילה לצהריים: </a><input type="number" value="{{ form.seq_night }}" name="seq_night" id="id_seq_night" disabled>
+        <a>מספר רצפים לילה לצהריים: </a><input required type="number" min="0" {% if shift != None %} value="{{ shift.seq_night }}" {% else %} value="0" {% endif %} name="seq_night" id="id_seq_night" disabled>
     {% endif %}
 </div>
 <div style="padding:10px 0">
     {% if submitting %}
-    <a>מספר רצפים צהריים לבוקר: </a><input type="number" value="{{ form.seq_noon }}" name="seq_noon" id="id_seq_noon">
+    <a>מספר רצפים צהריים לבוקר: </a><input required type="number" min="0" {% if shift != None %} value="{{ shift.seq_noon }}" {% else %} value="0" {% endif %} name="seq_noon" id="id_seq_noon">
     {% else %}
-    <a>מספר רצפים צהריים לבוקר: </a><input type="number" value="{{ form.seq_noon }}" name="seq_noon" id="id_seq_noon" disabled>
+    <a>מספר רצפים צהריים לבוקר: </a><input required type="number" min="0" {% if shift != None %} value="{{ shift.seq_noon }}" {% else %} value="0" {% endif %} name="seq_noon" id="id_seq_noon" disabled>
     {% endif %}
 </div>
-{% for f in forms %}
+{% for week in shift_data %}
 <table class="responsive-table-input-matrix" style="align-items: center">
 		<thead>
 		<tr>
@@ -36,57 +36,21 @@
 
 		<tr style="align-content: end">
 			<td>בוקר</td>
-        {% for field in f|get_form_data:"M" %}
-            {% if submitting %}
-            {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="M{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="M{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked></td>
-            {% endif %}
-            {% else %}
-            {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="M{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" disabled></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="M{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked disabled></td>
-            {% endif %}
-            {% endif %}
+        {% for field in shift_data|get_served_week:week|get_list_dict_served:"M" %}
+			<td><input type="checkbox" {% if not submitting %} disabled {% endif %} {% if field|default_if_none:False == True %} checked {% endif %} name="M{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
             {% endfor %}
 		</tr>
 		<tr>
 			<td>צהריים</td>
-            {% for field in f|get_form_data:"A" %}
-                {% if submitting %}
-            {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="A{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="A{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked></td>
-            {% endif %}
-                {% else %}
-                    {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="A{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" disabled></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="A{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked disabled></td>
-            {% endif %}
-                {% endif %}
+            {% for field in shift_data|get_served_week:week|get_list_dict_served:"A" %}
+            <td><input type="checkbox" {% if not submitting %} disabled {% endif %} {% if field|default_if_none:False == True %} checked {% endif %} name="A{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
             {% endfor %}
 		</tr>
 		<tr>
 		<td>לילה</td>
-            {% for field in f|get_form_data:"N" %}
-                {% if submitting %}
-            {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="N{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="N{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked></td>
-            {% endif %}
-                {% else %}
-                    {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="N{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" disabled></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="N{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked disabled></td>
-            {% endif %}
-                {% endif %}
-            {% endfor %}
+        {% for field in shift_data|get_served_week:week|get_list_dict_served:"N" %}
+        <td><input type="checkbox" {% if not submitting %} disabled {% endif %} {% if field|default_if_none:False == True %} checked {% endif %} name="N{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
+        {% endfor %}
 		</tr>
         <tr>
 		<td>↑לילה<br>↓משיכה</td>
@@ -100,48 +64,20 @@
 		</tr>
         <tr>
 			<td>משיכה</td>
-            {% for field in f|get_form_data:"P" %}
-                {% if submitting %}
-            {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="P{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="P{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked></td>
-            {% endif %}
-                {% else %}
-                    {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="P{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" disabled></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="P{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked disabled></td>
-            {% endif %}
-                {% endif %}
+            {% for field in shift_data|get_served_week:week|get_list_dict_served:"P" %}
+            <td><input type="checkbox" {% if not submitting %} disabled {% endif %} {% if field|default_if_none:False == True %} checked {% endif %} name="P{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
             {% endfor %}
 		</tr>
         <tr>
 			<td>תגבור</td>
-            {% for field in f|get_form_data:"R" %}
-                {% if submitting %}
-            {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="R{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="R{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked></td>
-            {% endif %}
-                {% else %}
-                    {% if field|default_if_none:False == False %}
-			<td><input type="checkbox" value="True" name="R{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" disabled></td>
-            {% else %}
-            <td><input type="checkbox" value="True" name="R{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" checked disabled></td>
-            {% endif %}
-                {% endif %}
+            {% for field in shift_data|get_served_week:week|get_list_dict_served:"R" %}
+            <td><input type="checkbox" {% if not submitting %} disabled {% endif %} {% if field|default_if_none:False == True %} checked {% endif %} name="R{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}"></td>
             {% endfor %}
 		</tr>
 		<tr>
 			<td>הערות</td>
-            {% for field in f|get_form_data:"notes" %}
-                {% if submitting %}
-                <td><textarea name="notes{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}">{{ field|default_if_none:"" }}</textarea></td>
-                {% else %}
-                <td><textarea name="notes{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" disabled>{{ field|default_if_none:"" }}</textarea></td>
-                {% endif %}
+            {% for field in shift_data|get_served_week:week|get_list_dict_served:"notes" %}
+                <td><textarea name="notes{{ forloop.counter }}_{{ forloop.parentloop.counter0 }}" {% if not submitting %} disabled {% endif %} >{{ field|default_if_none:"" }}</textarea></td>
             {% endfor %}
 		</tr>
 		</tbody>
@@ -152,10 +88,6 @@
                     <a>הערות:</a>
                 </notes>
                 <div STYLE="margin-top: 1.5em">
-                    {% if submitting %}
-                    <textarea name="notesArea" class="notesArea">{{ notes_text }}</textarea>
-                    {% else %}
-                        <textarea name="notesArea" class="notesArea" disabled>{{ notes_text }}</textarea>
-                    {% endif %}
+                    <textarea name="notesArea" class="notesArea" {% if not submitting %} disabled {% endif %}>{{ notes_text }}</textarea>
                 </div>
             </div>

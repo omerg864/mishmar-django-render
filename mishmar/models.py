@@ -113,7 +113,7 @@ class Shift(models.Model):
     weeks_data = JSONField()
 
     def __str__(self):
-        return f'{self.username.first_name} {self.username.last_name} ({self.username}) - {self.date}'
+        return f'{self.user.first_name} {self.user.last_name} ({self.user}) - {self.organization.date}'
 
     def get_absolute_url(self):
         return reverse("shift-update", kwargs={"pk": self.pk})

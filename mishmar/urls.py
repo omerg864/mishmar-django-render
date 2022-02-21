@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from . import views
-from .views import ArmingAllMonthView, ArmingPersonalMonthView, EventCreateView, EventListView, EventUpdateView, GunListView, IpBanListView, OrganizationDetailView, PostCreateView, PostListView, PostUpdateView, ShifttableView, ValidationLogMonthView, data_usage_view, delete_logs_data_view, delete_organization_data_view, organization_shift_view, staff_panel_view
+from .views import ArmingAllMonthView, ArmingPersonalMonthView, EventCreateView, EventListView, EventUpdateView, GunListView, IpBanListView, OrganizationDetailView, PostCreateView, PostListView, PostUpdateView, ShifttableView, ValidationLogMonthView, data_usage_view, delete_events_data_view, delete_logs_data_view, delete_organization_data_view, organization_shift_view, staff_panel_view
 from .views import ServedSumListView, ServedSumShiftDetailView, ServedSumReinforcementsDetailView
 from .views import OrganizationSuggestionView, OrganizationCreateView, OrganizationListView
 from .views import organization_update
@@ -42,6 +42,7 @@ urlpatterns = [
     path('data/usage/', data_usage_view, name="data-usage"),
     path('data/organizations/delete', delete_organization_data_view, name="delete-organization-data"),
     path('data/logs/delete', delete_logs_data_view, name="delete-logs-data"),
+    path('data/events/delete', delete_events_data_view, name="delete-events-data"),
     path('gun/list', GunListView.as_view(), name="gun-list"),
     path('<int:year>/<str:month>/validation/', ValidationLogMonthView.as_view(), name="validation-month"),
 ]

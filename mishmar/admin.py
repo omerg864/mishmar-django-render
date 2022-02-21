@@ -1,8 +1,6 @@
 from django.contrib import admin
-from .models import Shift1 as Shift
 from .models import Post
 from .models import Event
-from .models import Organization as Organization
 from .models import IpBan
 from .models import Week
 from .models import ShiftWeek
@@ -11,6 +9,8 @@ from .models import Arming_Log
 from .models import ValidationLog
 from .models import ArmingRequest
 from .models import OrganizationShift
+from .models import Shift as Shift
+from .models import Organization1 as Organization
 
 admin.site.register(Shift)
 admin.site.register(ShiftWeek)

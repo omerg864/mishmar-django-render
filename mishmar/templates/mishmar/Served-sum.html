@@ -4,7 +4,7 @@
     <div>
         <h3>מתאריך {{ days|first|date:"d/m" }} עד לתאריך {{ days|last|date:"d/m" }}</h3>
     </div>
-    <div class="row" style="align: bottom">
+    <div class="row" style="align-items: bottom">
     <div>
     <form method="POST">
         {% csrf_token %}
@@ -38,7 +38,7 @@
     {% endfor %}
     </div>
     </div>
-    {% for week in notes %}
+    {% for week in served %}
 <table class="responsive-table-input-matrix" style="align-items: center; margin-top: 2em">
 		<thead>
 		<tr>
@@ -62,19 +62,19 @@
 
 		<tr style="align-content: end">
 			<td>בוקר</td>
-            {% for s in served|clip_dictionary_served1:"M"|clip_dictionary_served2:forloop.counter0 %}
+            {% for s in served|get_served_week:week|get_list_dict_served:"M" %}
 			<td>{{ s }}</td>
                 {% endfor %}
 		</tr>
 		<tr>
 			<td>צהריים</td>
-			{% for s in served|clip_dictionary_served1:"A"|clip_dictionary_served2:forloop.counter0 %}
+			{% for s in served|get_served_week:week|get_list_dict_served:"A" %}
 			<td>{{ s }}</td>
                 {% endfor %}
 		</tr>
 		<tr>
 		<td>לילה</td>
-			{% for s in served|clip_dictionary_served1:"N"|clip_dictionary_served2:forloop.counter0 %}
+			{% for s in served|get_served_week:week|get_list_dict_served:"N" %}
 			<td>{{ s }}</td>
                 {% endfor %}
 		</tr>
@@ -102,7 +102,7 @@
 </table>
         <div style="margin-top: 2em; margin-bottom: 3em; font-size: 20px">
         <a style="margin-top: 4em">הערות שבוע {{ forloop.counter }}:</a>
-        <p>{{ week }}</p>
+        <p>{{ notes|get_string_int:week }}</p>
     </div>
     {% endfor %}
     <div style="margin-top: 2em; margin-bottom: 3em; font-size: 20px">

@@ -6,7 +6,6 @@ from pyexpat import model
 import random
 import xlsxwriter as xlsxwriter
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
@@ -16,27 +15,27 @@ from django.http import HttpResponseRedirect
 from django.template.defaulttags import register
 from django.views.generic import UpdateView, ListView, DetailView, CreateView
 from .backend.mishmar.Organizer import Organizer
-from .forms import SettingsForm, WeekUpdateForm, ShiftWeekForm, ShiftWeekViewForm
+from .forms import SettingsForm
 from .models import ArmingRequest, IpBan, Post, ValidationLog
 from .models import Settings as Settings
-from .models import Shift1 as Shift
 from .models import Event
-from .models import Organization as Organization
-from .models import Week
-from .models import ShiftWeek
 from .models import Arming_Log
 from .models import Gun
 from .models import OrganizationShift
+from .models import Organization1 as Organization
+from .models import Shift as Shift
 from users.models import UserSettings as USettings
 import openpyxl
 from django.utils import timezone
 from openpyxl.utils import get_column_letter
-import requests
 from deep_translator import GoogleTranslator
 import os
 from django.views.generic.dates import DayArchiveView, MonthArchiveView
 from django.utils import translation
 from .decorators import user_staff_permission
+
+
+
 
 
 default_language = os.environ.get("DEFAULT_LANGUAGE")
@@ -417,7 +416,7 @@ class ArmingDayView(LoginRequiredMixin, DayArchiveView):
             return redirect("validation-month", year=self.kwargs['year'], month=self.kwargs['month'])
         elif "shift1" in request.POST:
             shift = 1
-        elif "shift2" in request.POST:
+        elif "Shift" in request.POST:
             shift = 2
         elif "shift3" in request.POST:
             shift = 3
@@ -735,11 +734,6 @@ class GunListView(LoginRequiredMixin,UserPassesTestMixin, ListView):
 @login_required
 def shift_view(request):
     organization = Organization.objects.order_by('-date')[0]
-    shifts_weeks_served = ShiftWeek.objects.all().filter(date=organization.date)
-    forms = []
-    for i in range(organization.num_weeks):
-        forms.append("")
-    form = None
     notes_text = ""
     empty = False
     settings = Settings.objects.last()
@@ -771,84 +765,91 @@ def shift_view(request):
     if request.method == 'POST':
         if not already_submitted(request.user):
             shift = Shift()
+            shift_data_temp = {}
             for i in range(organization.num_weeks):
-                new_form = ShiftWeekForm(request.POST)
-                forms[i] = new_form
+                shift_data_temp[str(i)] = {}
+                for j in range(1, 8):
+                    shift_data_temp[str(i)][f'M{j}'] = False
+                    shift_data_temp[str(i)][f'P{j}'] = True
+                    shift_data_temp[str(i)][f'A{j}'] = False
+                    shift_data_temp[str(i)][f'N{j}'] = False
+                    shift_data_temp[str(i)][f'R{j}'] = False
+                    shift_data_temp[str(i)][f'notes{j}'] = ""
+            shift.weeks_data = shift_data_temp
         else:
-            last_date = Organization.objects.order_by('-date')[0].date
-            shifts = Shift.objects.filter(date=last_date)
-            shift = shifts.filter(username=request.user).first()
+            org = Organization.objects.order_by('-date')[0]
+            shifts = Shift.objects.filter(organization=org)
+            shift = shifts.filter(user=request.user).first()
             notes_text = str(shift.notes)
-            weeks = shifts_weeks_served.filter(username=request.user).order_by('num_week')
-            for week in weeks:
-                new_form = ShiftWeekForm(request.POST, instance=week)
-                forms[week.num_week] = new_form
-        shift.username = request.user
-        shift.date = Organization.objects.order_by('-date')[0].date
+        shift.user = request.user
+        shift.organization = Organization.objects.order_by('-date').first()
         notes_area = request.POST.get("notesArea")
         shift.notes = notes_area
         shift.seq_night = request.POST.get(f"seq_night", 0)
         shift.seq_noon = request.POST.get(f"seq_noon", 0)
-        error = False
-        shift.save()
-        if already_submitted(request.user):
-            for form in forms:
-                if not form.is_valid():
-                    error = True
-            if not error:
-                for j in range(len(forms)):
-                    forms[j].instance.username = request.user
-                    forms[j].instance.date = Organization.objects.order_by('-date')[0].date
-                    forms[j].instance.num_week = j
-                    forms[j].instance = insert_shift_data(forms[j].instance, request, j)
-                    forms[j].save()
-            else:
-                for j in range(organization.num_weeks):
-                    weeks = ShiftWeek.objects.all().filter(date=organization.date).order_by('num_week')
-                    new_shift = ShiftWeekForm(instance=weeks[j])
-                    new_shift.username = request.user
-                    new_shift.date = Organization.objects.order_by('-date')[0].date
-                    new_shift.num_week = j
-                    new_shift = insert_shift_data(new_shift, request, j)
-            if not already_submitted(request.user):
-                messages.success(request, translate_text(f'משמרות הוגשו בהצלחה!', request.user, "hebrew"))
-            else:
-                messages.success(request, translate_text(f'משמרות עודכנו בהצלחה!', request.user, "hebrew"))
-            return redirect("Home")
+        shift_data_temp = {}
+        for i in range(organization.num_weeks):
+            shift_data_temp[str(i)] = {}
+            for j in range(1, 8):
+                shift_data_temp[str(i)][f'M{j}'] = False
+                shift_data_temp[str(i)][f'P{j}'] = True
+                shift_data_temp[str(i)][f'A{j}'] = False
+                shift_data_temp[str(i)][f'N{j}'] = False
+                shift_data_temp[str(i)][f'R{j}'] = False
+                shift_data_temp[str(i)][f'notes{j}'] = ""
+        for i in range(organization.num_weeks):
+            for j in range(1, 8):
+                shift_data_temp[str(i)][f"M{j}"] = checkbox(request.POST.get(f"M{j}_{i}", False))
+                shift_data_temp[str(i)][f"P{j}"] = checkbox(request.POST.get(f"P{j}_{i}", False))
+                shift_data_temp[str(i)][f"A{j}"] = checkbox(request.POST.get(f"A{j}_{i}", False))
+                shift_data_temp[str(i)][f"N{j}"] = checkbox(request.POST.get(f"N{j}_{i}", False))
+                shift_data_temp[str(i)][f"R{j}"] = checkbox(request.POST.get(f"R{j}_{i}", False))
+                shift_data_temp[str(i)][f"notes{j}"] = request.POST.get(f"notes{j}_{i}", False)
+        if not already_submitted(request.user):
+            messages.success(request, translate_text(f'משמרות הוגשו בהצלחה!', request.user, "hebrew"))
         else:
-            messages.error(request, translate_text(f'שינויים לא נשמרו!', request.user, "hebrew"))
+            messages.success(request, translate_text(f'משמרות עודכנו בהצלחה!', request.user, "hebrew"))
+        print(shift_data_temp)
+        shift.weeks_data = shift_data_temp
+        shift.save()
+        shift_data = shift.weeks_data
+        return redirect("Home")
     else:
         if not submitting:
-            shifts = Shift.objects.order_by('-date')
-            if len(shifts.filter(username=request.user, date=organization.date).order_by('-date')) > 0:
-                shift = shifts.filter(username=request.user).order_by('-date')[0]
-                weeks = shifts_weeks_served.filter(username=request.user).order_by('num_week')
+            shifts = Shift.objects.order_by('-organization__date')
+            if len(shifts.filter(user=request.user, organization=organization).order_by('-organization__date')) > 0:
+                shift = shifts.filter(user=request.user).order_by('-organization__date').first()
+                shift_data = shift.weeks_data
                 notes_text = str(shift.notes)
-                for i in range(len(weeks)):
-                    forms[i] = ShiftWeekViewForm(instance=weeks[i])
             else:
                 empty = True
         elif not already_submitted(request.user):
-            shift = Shift()
+            shift_data = {}
+            shift = None
             for i in range(organization.num_weeks):
-                forms[i] = ShiftWeekForm()
+                shift_data[str(i)] = {}
+                for j in range(1, 8):
+                    shift_data[str(i)][f"M{j}"] = False
+                    shift_data[str(i)][f"P{j}"] = True
+                    shift_data[str(i)][f"A{j}"] = False
+                    shift_data[str(i)][f"N{j}"] = False
+                    shift_data[str(i)][f"R{j}"] = False
+                    shift_data[str(i)][f"notes{j}"] = ""
+            notes_text = ""
         else:
-            last_date = Organization.objects.order_by('-date')[0].date
-            shifts = Shift.objects.filter(date=last_date)
-            shift = shifts.filter(username=request.user).first()
+            shifts = Shift.objects.filter(organization=organization)
+            shift = shifts.filter(user=request.user).first()
+            shift_data = shift.weeks_data
             notes_text = str(shift.notes)
-            weeks = shifts_weeks_served.filter(username=request.user).order_by('num_week')
-            for i in range(len(weeks)):
-                forms[i] = ShiftWeekForm(instance=weeks[i])
     if not empty:
         context = {
-            "form": shift,
+            "shift": shift,
+            "shift_data": shift_data,
             "days": days,
             "submitting": submitting,
             "notes_text": notes_text,
             "empty": empty,
             "manager": False,
-            "forms": forms,
         }
     else:
         context = {
@@ -873,15 +874,11 @@ class ServedSumListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 # View to staff member to edit shifts served 
 @user_staff_permission
 def shift_update_view(request, pk=None):
-    main_shift = Shift.objects.all().filter(id=pk).first()
-    organization = Organization.objects.all().filter(date=main_shift.date).first()
-    shifts_weeks_served = ShiftWeek.objects.all().filter(date=organization.date)
-    user = User.objects.filter(username=main_shift.username).first()
-    forms = []
-    for i in range(organization.num_weeks):
-        forms.append("")
-    form = None
-    notes_text = ""
+    shift = Shift.objects.all().filter(id=pk).first()
+    shift_data = shift.weeks_data
+    organization = shift.organization
+    user = shift.user
+    notes_text = str(shift.notes)
     user_settings = USettings.objects.all().filter(user=user).first()
     days = []
     for x in range(organization.num_weeks * 7):
@@ -899,53 +896,41 @@ def shift_update_view(request, pk=None):
                     message = translate_text(message, user, "hebrew")
                     messages.info(request, message)
     if request.method == 'POST':
-        last_date = organization.date
-        shifts = Shift.objects.filter(date=last_date)
-        shift = shifts.filter(username=user).first()
-        notes_text = str(shift.notes)
-        weeks = shifts_weeks_served.filter(username=user).order_by('num_week')
-        for week in weeks:
-            new_form = ShiftWeekForm(request.POST, instance=week)
-            forms[week.num_week] = new_form
-        shift.username = user
-        shift.date = organization.date
         notes_area = request.POST.get("notesArea")
         shift.notes = notes_area
+        notes_text = str(shift.notes)
         shift.seq_night = request.POST.get(f"seq_night", 0)
         shift.seq_noon = request.POST.get(f"seq_noon", 0)
-        error = False
+        shift_data_temp = {}
+        for i in range(organization.num_weeks):
+            shift_data_temp[str(i)] = {}
+            for j in range(1, 8):
+                shift_data_temp[str(i)][f'M{j}'] = False
+                shift_data_temp[str(i)][f'P{j}'] = True
+                shift_data_temp[str(i)][f'A{j}'] = False
+                shift_data_temp[str(i)][f'N{j}'] = False
+                shift_data_temp[str(i)][f'R{j}'] = False
+                shift_data_temp[str(i)][f'notes{j}'] = ""
+        for i in range(organization.num_weeks):
+            for j in range(1, 8):
+                shift_data_temp[str(i)][f"M{j}"] = checkbox(request.POST.get(f"M{j}_{i}", False))
+                shift_data_temp[str(i)][f"P{j}"] = checkbox(request.POST.get(f"P{j}_{i}", False))
+                shift_data_temp[str(i)][f"A{j}"] = checkbox(request.POST.get(f"A{j}_{i}", False))
+                shift_data_temp[str(i)][f"N{j}"] = checkbox(request.POST.get(f"N{j}_{i}", False))
+                shift_data_temp[str(i)][f"R{j}"] = checkbox(request.POST.get(f"R{j}_{i}", False))
+                shift_data_temp[str(i)][f"notes{j}"] = request.POST.get(f"notes{j}_{i}", False)
+        shift.weeks_data = shift_data_temp
         shift.save()
-        for form in forms:
-            if not form.is_valid():
-                error = True
-        if not error:
-            for j in range(len(forms)):
-                forms[j].instance.username = user
-                forms[j].instance.date = organization.date
-                forms[j].instance.num_week = j
-                forms[j].instance = insert_shift_data(forms[j].instance, request, j)
-                forms[j].save()
-            messages.success(request, translate_text(f'משמרות עודכנו בהצלחה!', user, "hebrew"))
-            return redirect("Served-sum")
-        else:
-            messages.error(request, translate_text(f'שינויים לא נשמרו!', user, "hebrew"))
-    else:
-        last_date = organization.date
-        shifts = Shift.objects.filter(date=last_date)
-        shift = shifts.filter(username=user).first()
-        notes_text = str(shift.notes)
-        # form = ShiftForm(instance=shift)
-        weeks = shifts_weeks_served.filter(username=user).order_by('num_week')
-        for i in range(len(weeks)):
-            forms[i] = ShiftWeekForm(instance=weeks[i])
+        messages.success(request, translate_text(f'משמרות עודכנו בהצלחה!', user, "hebrew"))
+        return redirect("Served-sum")
     context = {
-            "form": shift,
+            "shift": shift,
             "days": days,
             "submitting": True,
             "notes_text": notes_text,
+            "shift_data": shift_data,
             "empty": False,
             "manager": True,
-            "forms": forms,
             "userview": USettings.objects.all().filter(user=user).first().nickname,
     }
     return render(request, "mishmar/shifts.html", context)
@@ -961,11 +946,10 @@ class OrganizationDetailView(LoginRequiredMixin, DetailView, UserPassesTestMixin
     
     def get_context_data(self, **kwargs):
         ctx = super(OrganizationDetailView, self).get_context_data(**kwargs)
-        weeks_obj = Week.objects.all().filter(date=self.get_object().date).order_by('num_week')
         shifts = OrganizationShift.objects.all().order_by('shift_num', 'index')
         weeks = []
-        for week_obj in weeks_obj:
-            weeks.append(week_obj.shifts)
+        for i in range(self.get_object().num_weeks):
+            weeks.append(self.get_object().weeks_data[str(i)])
         ctx["weeks"] = weeks
         days = []
         for x in range(self.get_object().num_weeks * 7):
@@ -983,7 +967,11 @@ class OrganizationCreateView(LoginRequiredMixin, CreateView, UserPassesTestMixin
 
     def get_context_data(self, **kwargs):
         ctx = super(OrganizationCreateView, self).get_context_data(**kwargs)
-        ctx["date1"] = timezone.now()
+        organizations = Organization.objects.all().order_by('-date')
+        if organizations.count() > 0:
+            ctx["date1"] = organizations.first().date + datetime.timedelta(days=7 * organizations.first().num_weeks)
+        else:
+            ctx["date1"] = timezone.now()
         return ctx
 
     def test_func(self):
@@ -1001,19 +989,22 @@ class ShifttableView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super(ShifttableView, self).get_context_data(**kwargs)
-        organization = get_input(self.get_object())
+        weeks = []
+        for i in range(self.get_object().num_weeks):
+            weeks.append(self.get_object().weeks_data[str(i)])
         users = set()
-        for key in organization:
-            if key.count("notes") == 0:
-                organization[key] = organization[key].replace("\r", "\n")
-                split = organization[key].split("\n")
-                for s in split:
-                    s = s.replace(" ", "")
-                    users.add(s)
+        shift_keys = OrganizationShift.objects.all().exclude(shift_num=4)
+        for i in range(self.get_object().num_weeks):
+            for key in shift_keys:
+                for day in range(1, 8):
+                    temp_shift = weeks[i][f'{day}@{key.id}'].replace("\r", "\n")
+                    split = temp_shift.split("\n")
+                    for s in split:
+                        s = s.replace(" ", "")
+                        if s != "":
+                            users.add(s)
         if " " in users:
             users.remove(" ")
-        if "" in users:
-            users.remove("")
         table_content = {}
         sum_content = {}
         for i in range(self.get_object().num_weeks):
@@ -1029,50 +1020,44 @@ class ShifttableView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             table_content[user]["night"] = 0
             table_content[user]["end"] = 0
         shift_keys = OrganizationShift.objects.all().order_by('shift_num', 'index')
-
         morning_shifts = shift_keys.filter(shift_num=1)
         noon_shifts = shift_keys.filter(shift_num=2)
         night_shifts = shift_keys.filter(shift_num=3)
-        num_week = 0
-        count = 0
-        for i in range(1, self.get_object().num_weeks * 7 + 1):
-            count += 1
-            for shift in morning_shifts:
-                split = organization[f'{i}@{shift.title}@{shift.id}'].split("\n")
-                for s in split:
-                    s = s.replace(" ", "")
-                    if s != "":
-                        if count != 7:
-                            table_content[s][f"morning{num_week + 1}"] += 1
-                            sum_content[f"morning{num_week + 1}"] += 1
-                        else:
-                            table_content[s]["end"] += 1
-                            sum_content["end"] += 1
-            for shift in noon_shifts:
-                split = organization[f'{i}@{shift.title}@{shift.id}'].split("\n")
-                for s in split:
-                    s = s.replace(" ", "")
-                    if s != "":
-                        if count < 6:
-                            table_content[s][f"noon{num_week + 1}"] += 1
-                            sum_content[f"noon{num_week + 1}"] += 1
-                        else:
-                            table_content[s]["end"] += 1
-                            sum_content["end"] += 1
-            for shift in night_shifts:
-                split = organization[f'{i}@{shift.title}@{shift.id}'].split("\n")
-                for s in split:
-                    s = s.replace(" ", "")
-                    if s != "":
-                        if count < 6:
-                            table_content[s]["night"] += 1
-                            sum_content["night"] += 1
-                        else:
-                            table_content[s]["end"] += 1
-                            sum_content["end"] += 1
-            if count == 7:
-                count = 0
-                num_week += 1
+        for j in range(self.get_object().num_weeks):
+            for i in range(1, 8):
+                for shift in morning_shifts:
+                    split = weeks[j][f'{i}@{shift.id}'].split("\n")
+                    for s in split:
+                        s = s.replace(" ", "")
+                        if s != "":
+                            if i != 7:
+                                table_content[s][f"morning{j + 1}"] += 1
+                                sum_content[f"morning{j + 1}"] += 1
+                            else:
+                                table_content[s]["end"] += 1
+                                sum_content["end"] += 1
+                for shift in noon_shifts:
+                    split = weeks[j][f'{i}@{shift.id}'].split("\n")
+                    for s in split:
+                        s = s.replace(" ", "")
+                        if s != "":
+                            if i < 6:
+                                table_content[s][f"noon{j + 1}"] += 1
+                                sum_content[f"noon{j + 1}"] += 1
+                            else:
+                                table_content[s]["end"] += 1
+                                sum_content["end"] += 1
+                for shift in night_shifts:
+                    split = weeks[j][f'{i}@{shift.id}'].split("\n")
+                    for s in split:
+                        s = s.replace(" ", "")
+                        if s != "":
+                            if i < 6:
+                                table_content[s]["night"] += 1
+                                sum_content["night"] += 1
+                            else:
+                                table_content[s]["end"] += 1
+                                sum_content["end"] += 1
         ctx["table"] = table_content
         ctx["sum"] = sum_content
         days = []
@@ -1091,9 +1076,10 @@ class ServedSumReinforcementsDetailView(LoginRequiredMixin, UserPassesTestMixin,
     model = Organization
     template_name = "mishmar/served_sum_reinforcements.html"
 
-    def get_data(self, calculated: bool):
+    def get_data2(self, calculated: bool):
         ctx = {}
         served = {}
+        notes = []
         shift_keys = OrganizationShift.objects.all().order_by('shift_num', 'index')
         morning_shifts = shift_keys.filter(shift_num=1)
         noon_shifts = shift_keys.filter(shift_num=2)
@@ -1110,47 +1096,39 @@ class ServedSumReinforcementsDetailView(LoginRequiredMixin, UserPassesTestMixin,
                 input_days[day + "A"] = []
                 input_days[day + "N"] = []
                 for key in morning_shifts:
-                    input_days[day + "M"] += organization_input[f'{i}@{key.title}@{key.id}'].split("\n")
+                    input_days[day + "M"] += organization_input[f'{i}@{key.id}'].split("\n")
                 for key in noon_shifts:
-                    input_days[day + "A"] += organization_input[f'{i}@{key.title}@{key.id}'].split("\n")
+                    input_days[day + "A"] += organization_input[f'{i}@{key.id}'].split("\n")
                 for key in night_shifts:
-                    input_days[day + "N"] += organization_input[f'{i}@{key.title}@{key.id}'].split("\n")
+                    input_days[day + "N"] += organization_input[f'{i}@{key.id}'].split("\n")
         if calculated:
             for key in input_days:
                 for i in range(len(input_days[key])):
                     input_days[key][i] = input_days[key][i].replace(" ", "")
                     input_days[key][i] = input_days[key][i].replace("\n", "")
                     input_days[key][i] = input_days[key][i].replace("\r", "")
-        shift_date = self.get_object().date
-        main_shifts_served = Shift.objects.all().filter(date=shift_date)
-        shifts_served = ShiftWeek.objects.all().filter(date=shift_date)
+        main_shifts_served = Shift.objects.all().filter(organization=self.get_object())
         weeks_notes = []
         for i in range(self.get_object().num_weeks):
             weeks_notes.append("")
         notes_general = ""
         users = {}
         user_notes_added = []
-        for shift in shifts_served:
-            username = shift.username
-            user = User.objects.all().filter(username=username).first()
+        for shift in main_shifts_served:
+            user = shift.user
             user_settings = USettings.objects.all().filter(user=user).first()
-            main_shift = main_shifts_served.filter(username=username).first()
-            users[user_settings.nickname] = main_shifts_served.filter(username=username).first().id
+            main_shift = main_shifts_served.filter(user=user).first()
+            users[user_settings.nickname] = main_shifts_served.filter(user=user).first().id
             name = user_settings.nickname
             index = 1
-            shifts = [shift.R1, shift.R2, shift.R3, shift.R4, shift.R5, shift.R6, shift.R7]
-            for s in shifts:
-                if s:
-                    served["day" + str(index + (shift.num_week * 7))] += name
-                index += 1
-            notes = [shift.notes1, shift.notes2, shift.notes3,
-                      shift.notes4, shift.notes5, shift.notes6, shift.notes7]
-            index = 1
-            for n in notes:
-                if n != "":
-                    notes[shift.num_week] += name + ": " \
-                                     + number_to_day2(index) + " - " + n + "\n"
-                index += 1
+            for j in range(self.get_object().num_weeks):
+                notes.append("")
+                for i in range(1, 8):
+                    if shift.weeks_data[str(j)][f'R{i}']:
+                        served["day" + str(i + (j * 7))] += name
+                    if shift.weeks_data[str(j)][f'notes{i}'] != "":
+                        notes[j] += name + ": " \
+                                     + number_to_day2(index) + " - " + shift.weeks_data[str(j)][f'notes{i}'] + "\n"
             if main_shift.notes != "" and name not in user_notes_added:
                 notes_general += name + ": " + main_shift.notes + "\n"
                 user_notes_added.append(name)
@@ -1215,14 +1193,14 @@ class ServedSumReinforcementsDetailView(LoginRequiredMixin, UserPassesTestMixin,
         ctx["served"] = served
         ctx["notes"] = weeks_notes
         ctx["notes_general"] = notes_general
-        ctx["num_served"] = len(shifts_served)
+        ctx["num_served"] = len(main_shifts_served)
         ctx["users"] = users
         return ctx
 
     def get_context_data(self, **kwargs):
         ctx = super(ServedSumReinforcementsDetailView, self).get_context_data(**kwargs)
         calculated = False
-        context = self.get_data(calculated)
+        context = self.get_data2(calculated)
         for c in context:
             ctx[c] = context[c]
         return ctx
@@ -1238,7 +1216,7 @@ class ServedSumReinforcementsDetailView(LoginRequiredMixin, UserPassesTestMixin,
                     calculated = False
                 else:
                     calculated = True
-            ctx = self.get_data(calculated)
+            ctx = self.get_data2(calculated)
             return render(request, "mishmar/served_sum_reinforcements.html", ctx)
 
 
@@ -1261,28 +1239,26 @@ class ServedSumShiftDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
         if request.method == "POST":
             if "download" in request.POST:
                 ctx = get_data(self.get_object())
-                return WriteToExcel(ctx["served"], ctx["notes"], ctx["notes_general"],ctx["days"], self.request.user)
+                return WriteToExcel(weeks_to_served(ctx["served"]), ctx["notes"], ctx["notes_general"],ctx["days"], self.request.user)
 
 
 # View to update organizaytion by staff memebers
 @user_staff_permission
 def organization_update(request, pk=None):
     organization = Organization.objects.all().filter(id=pk).first()
-    weeks = Week.objects.all().filter(date=organization.date).order_by('num_week')
     weeks_shifts = []
-    for week in weeks:
-        weeks_shifts.append(week.shifts)
+    for i in range(organization.num_weeks):
+        weeks_shifts.append(organization.weeks_data[str(i)])
     days = []
     shifts = OrganizationShift.objects.all().order_by('shift_num', 'index')
     for x in range(organization.num_weeks * 7):
         days.append(organization.date + datetime.timedelta(days=x))
     if request.method == "POST":
         action = request.POST.get("actions")
-        index = 0
-        for week in weeks:
-            to_week_form(week, request, index)
-            week.save()
-            index += 1
+        for j in range(organization.num_weeks):
+            for i in range(1, 8):
+                for key in shifts:
+                    organization.weeks_data[str(j)][f"{i}@{key.id}"] = request.POST.get(f"day{i}@{key.id}@{j}", "")
         pub = request.POST.get("pub")
         if pub:
             published = False
@@ -1302,27 +1278,25 @@ def organization_update(request, pk=None):
             return redirect("organization-table-shift", organization.id)
         elif 'upload' == action:
             weeks_dicts = uplaod_organize(request, organization)
-            for i in range(len(weeks)):
-                for key in weeks_dicts[i].keys():
-                    weeks[i].shifts[key] = weeks_dicts[i][key]
-            error = False
-            if not error:
-                for week in weeks:
-                    week.save()
-                messages.success(request, translate_text(f'העלאה הושלמה', request.user, "hebrew"))
-            else:
-                messages.info(request, translate_text(f'עדכון לא הושלם תקלה טכנית', request.user, "hebrew"))
+            print(weeks_dicts)
+            temp_weeks = {}
+            index = 0
+            for week in weeks_dicts:
+                temp_weeks[str(index)] = week
+                index += 1
+            organization.weeks_data = temp_weeks
+            organization.save()
+            messages.success(request, translate_text(f'העלאה הושלמה', request.user, "hebrew"))
             return HttpResponseRedirect(request.path_info)
         elif 'clear' == action:
-            for week in weeks:
-                for shift in shifts:
-                    for i in range(1, 8):
-                        week.shifts[f'{i}@{shift.title}@{shift.id}'] = ""
-                week.save()
+            for j in range(organization.num_weeks):
+                for i in range(1, 8):
+                    for key in shifts:
+                        organization.weeks_data[str(j)][f"{i}@{key.id}"] = ""
+            organization.save()
             messages.success(request, translate_text(f'איפוס הושלם', request.user, "hebrew"))
             return HttpResponseRedirect(request.path_info)
         elif 'delete' == action:
-            Week.objects.filter(date=organization.date).delete()
             Organization.objects.filter(id=organization.id).delete()
             messages.success(request, translate_text(f'מחיקה הושלמה', request.user, "hebrew"))
             return redirect("Served-sum")
@@ -1346,24 +1320,20 @@ class OrganizationListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super(OrganizationListView, self).get_context_data(**kwargs)
-        weeks = Week.objects.all()
         shifts = OrganizationShift.objects.all().order_by('shift_num', 'index')
-        ctx["weeks"] = weeks
         ctx["shifts"] = shifts
         return ctx
 
-@user_staff_permission
-def data_usage_view(request):
-    context = {}
+
+def calculate_usage():
     shifts_organization_sum = 0
     shifts_organization_sum += Shift.objects.all().count()
-    shifts_organization_sum += ShiftWeek.objects.all().count()
     shifts_organization_sum += Organization.objects.all().count()
-    shifts_organization_sum += Week.objects.all().count()
     logs_sum = 0
     logs_sum += ValidationLog.objects.all().count()
     logs_sum += Arming_Log.objects.all().count()
     logs_sum += ArmingRequest.objects.all().count()
+    events_sum = Event.objects.all().count()
     sum_all = logs_sum + shifts_organization_sum + 1
     sum_all += User.objects.all().count()
     sum_all += Group.objects.all().count()
@@ -1373,26 +1343,36 @@ def data_usage_view(request):
     sum_all += Event.objects.all().count()
     sum_all += Post.objects.all().count()
     sum_all += IpBan.objects.all().count()
+    return [sum_all, logs_sum, shifts_organization_sum, events_sum]
+
+
+@user_staff_permission
+def data_usage_view(request):
+    context = {}
+    sum_all, logs_sum, shifts_organization_sum, events_sum = calculate_usage()
     context = {
         "shifts_organization_sum": shifts_organization_sum,
         "logs_sum": logs_sum,
         "sum_all": sum_all,
+        "events_sum": events_sum,
     }
     if request.method == "POST":
         if "org" in request.POST:
             return redirect('delete-organization-data')
-        else:
+        elif "log" in request.POST:
             return redirect('delete-logs-data')
+        elif 'event' in request.POST:
+            return redirect('delete-events-data')
     return render(request, "mishmar/data-usage.html", context)
+
 
 @user_staff_permission
 def delete_organization_data_view(request):
-    logs_sum = 0
-    logs_sum += ValidationLog.objects.all().count()
-    logs_sum += Arming_Log.objects.all().count()
-    logs_sum += ArmingRequest.objects.all().count()
+    shifts_organization_sum = 0
+    shifts_organization_sum += Shift.objects.all().count()
+    shifts_organization_sum += Organization.objects.all().count()
     context = {
-        "logs_sum": logs_sum,
+        "shifts_organization_sum": shifts_organization_sum,
     }
     if request.method == "POST":
         if 'delete' in request.POST:
@@ -1400,13 +1380,7 @@ def delete_organization_data_view(request):
             if len(organizations) > 2:
                 exclude_orgs = organizations[:2]
                 organizations = organizations[2:]
-                weeks = Week.objects.all()
-                shift_week = ShiftWeek.objects.all()
-                shfits = Shift.objects.all()
                 for org in organizations:
-                    weeks.filter(date=org.date).delete()
-                    shift_week.filter(date=org.date).delete()
-                    shfits.filter(date=org.date).delete()
                     org.delete()
                 messages.success(request, "נתונים נמחקו בהצלחה")
                 return redirect('data-usage')
@@ -1415,8 +1389,7 @@ def delete_organization_data_view(request):
                 return redirect('data-usage')
         else:
             return redirect('data-usage')
-    return render(request, "mishmar/data-logs-delete.html", context)
-
+    return render(request, "mishmar/data-organizations-delete.html", context)
 
 @user_staff_permission
 def delete_logs_data_view(request):
@@ -1441,8 +1414,27 @@ def delete_logs_data_view(request):
             return redirect('data-usage')
     return render(request, "mishmar/data-logs-delete.html", context)
 
+@user_staff_permission
+def delete_events_data_view(request):
+    events_sum = 0
+    today = timezone.now()
+    events_sum = Event.objects.all().filter(date2__lt=today).count()
+    context = {
+        "events_sum": events_sum,
+        "today": today,
+    }
+    if request.method == "POST":
+        if 'delete' in request.POST:
+            Event.objects.all().filter(date2__lt=today).delete()
+            messages.success(request, "נתונים נמחקו בהצלחה")
+            return redirect('data-usage')
+        else:
+            return redirect('data-usage')
+    return render(request, "mishmar/data-events-delete.html", context)
 
 
+
+#TODO
 # View to show suggestion organization calculated
 class OrganizationSuggestionView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Organization
@@ -1580,6 +1572,9 @@ class OrganizationSuggestionView(LoginRequiredMixin, UserPassesTestMixin, Detail
 @user_staff_permission
 def staff_panel_view(request):
     settings = Settings.objects.all().first()
+    usage = calculate_usage()
+    if usage[0] >= 8000:
+        messages.warning(request, f'כמות נתונים גבוהה ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
     context = {}
     checked = settings.submitting
     if request.method == 'POST':
@@ -1885,79 +1880,56 @@ def get_data(object):
         minimum_day_morning = 7
     if settings.friday_noon:
         minimum_day_noon = 7
-    for i in range(1, object.num_weeks * 7 + 1):
-        served["M" + str(i)] = ""
-        served["A" + str(i)] = ""
-        served["N" + str(i)] = ""
-    shift_date = object.date
-    main_shifts_served = Shift.objects.all().filter(date=shift_date)
-    shifts_served = ShiftWeek.objects.all().filter(date=shift_date)
+    for j in range(object.num_weeks):
+        served[str(j)] = {}
+        for i in range(1, 8):
+            served[str(j)]["M" + str(i)] = ""
+            served[str(j)]["A" + str(i)] = ""
+            served[str(j)]["N" + str(i)] = ""
+    main_shifts_served = Shift.objects.all().filter(organization=object)
     weeks_notes = []
     for i in range(object.num_weeks):
         weeks_notes.append("")
     notes_general = ""
     user_notes_added = []
     users = {}
-    for shift in shifts_served:
-        username = shift.username
-        user = User.objects.all().filter(username=username).first()
+    shifts_keys = []
+    for i in range(1, 8):
+        shifts_keys.append("M" + str(i))
+        shifts_keys.append("A" + str(i))
+        shifts_keys.append("N" + str(i))
+    for shift in main_shifts_served:
+        user = shift.user
         user_settings = USettings.objects.all().filter(user=user).first()
-        main_shift = main_shifts_served.filter(username=username).first()
-        users[user_settings.nickname] = main_shift.id
+        users[user_settings.nickname] = shift.id
         name = user_settings.nickname
         name = name.replace("\n", "")
         name = name.replace("\r", "")
-        kind = "M"
         morning = False
-        count = 0
-        index = 1
-        counters[f"M-{name}-{shift.num_week}"] = 0
-        counters[f"A-{name}-{shift.num_week}"] = 0
-        shifts = [shift.M1, shift.P1, shift.A1, shift.N1, shift.M2, shift.P2, shift.A2, shift.N2, shift.M3,
-                    shift.P3,
-                    shift.A3, shift.N3, shift.M4, shift.P4, shift.A4, shift.N4, shift.M5, shift.P5, shift.A5,
-                    shift.N5,
-                    shift.M6, shift.P6, shift.A6, shift.N6, shift.M7, shift.P7, shift.A7, shift.N7]
-        for s in shifts:
-            if s:
-                if count == 0:
+        for i in range(object.num_weeks):
+            counters[f"M-{name}-{i}"] = 0
+            counters[f"A-{name}-{i}"] = 0
+            for j in range(1, 8):
+                if shift.weeks_data[str(i)][f'M{j}']:
+                    served[str(i)][f'M{j}'] += name
                     morning = True
-                    served[kind + str(index + (shift.num_week * 7))] += name
-                    if index < minimum_day_morning:
-                        counters[f"M-{name}-{shift.num_week}"] += 1
+                    if j < minimum_day_morning:
+                        counters[f"M-{name}-{i}"] += 1
+                if not shift.weeks_data[str(i)][f'P{j}'] and morning:
+                    served[str(i)][f'M{j}'] += "\n" + "(לא משיכה)" + "\n"
                 else:
-                    if count == 1:
-                        if morning:
-                            served[kind + str(index + (shift.num_week * 7))] += "\n"
-                        morning = False
-                    else:
-                        if count == 2:
-                            kind = "A"
-                            if index < minimum_day_noon:
-                                counters[f"A-{name}-{shift.num_week}"] += 1
-                        elif count == 3:
-                            kind = "N"
-                        served[kind + str(index + (shift.num_week * 7))] += name + "\n"
-            else:
-                if count == 1 and morning:
-                    morning = False
-                    served[kind + str(index + (shift.num_week * 7))] += "\n" + "(לא משיכה)" + "\n"
-            if count == 3:
-                count = 0
-                index += 1
-                kind = "M"
-            else:
-                count += 1
-        notes1 = [shift.notes1, shift.notes2, shift.notes3,
-                    shift.notes4, shift.notes5, shift.notes6, shift.notes7]
-        index = 1
-        for n in notes1:
-            if n != "":
-                weeks_notes[shift.num_week] += name + ": " \
-                                    + number_to_day2(index) + " - " + n + "\n"
-            index += 1
-        if main_shift.notes != "" and name not in user_notes_added:
-            notes_general += name + ": " + main_shift.notes + "\n"
+                    served[str(i)][f'M{j}'] += "\n"
+                morning = False
+                if shift.weeks_data[str(i)][f'A{j}']:
+                    served[str(i)][f'A{j}'] += name + "\n"
+                    if j < minimum_day_noon:
+                        counters[f"A-{name}-{i}"] += 1
+                if shift.weeks_data[str(i)][f'N{j}']:
+                    served[str(i)][f'N{j}'] += name + "\n"
+                if shift.weeks_data[str(i)][f'notes{j}'] != "":
+                    weeks_notes[i] += name + ": " + number_to_day2(j) + " - " + shift.weeks_data[str(i)][f'notes{j}'] + "\n"
+        if shift.notes != "" and name not in user_notes_added:
+            notes_general += name + ": " + shift.notes + "\n"
             user_notes_added.append(name)
     not_qual_users = {}
     for key in counters:
@@ -2010,12 +1982,12 @@ def checkbox(value):
 
 # Check if the user has already submitted shifts
 def already_submitted(user):
-    last_date = Organization.objects.order_by('-date')[0].date
-    shifts = Shift.objects.filter(date=last_date)
+    organization = Organization.objects.order_by('-date').first()
+    shifts = Shift.objects.filter(organization=organization)
     if len(shifts) == 0:
         return False
     else:
-        if len(shifts.filter(username=user)) == 0:
+        if len(shifts.filter(user=user)) == 0:
             return False
     return True
 
@@ -2023,30 +1995,21 @@ def already_submitted(user):
 
 # Get organization data and return as dictionary
 def get_input(organization):
-    weeks = Week.objects.all().filter(date=organization.date).order_by('num_week')
+    weeks = []
+    for i in range(organization.num_weeks):
+        weeks.append(organization.weeks_data[str(i)])
     index = 0
     new_dict = {}
     for week in weeks:
         if index != 0:
-            for key in week.shifts.keys():
+            for key in week.keys():
                 split = key.split('@')
                 day = int(split[0]) + index * 7
-                new_dict[f'{day}@{split[1]}@{split[2]}'] = week.shifts[key]
+                new_dict[f'{day}@{split[1]}'] = week[key]
         else:
-            new_dict = week.shifts
+            new_dict = week
         index += 1
     return new_dict
-
-# insert shift data to form or object
-def insert_shift_data(form, request, j):
-    for i in range(1, 8):
-        setattr(form, f"M{i}", request.POST.get(f"M{i}_{j}", False))
-        setattr(form, f"A{i}", request.POST.get(f"A{i}_{j}", False))
-        setattr(form, f"N{i}", request.POST.get(f"N{i}_{j}", False))
-        setattr(form, f"P{i}", request.POST.get(f"P{i}_{j}", False))
-        setattr(form, f"R{i}", request.POST.get(f"R{i}_{j}", False))
-        setattr(form, f"notes{i}", request.POST.get(f"notes{i}_{j}", False))
-    return form
 
 # Extract data from excel and return it as a list of variables
 def extract_data(request, organization):
@@ -2111,15 +2074,14 @@ def extract_data(request, organization):
             if str(sheet.cell(j, col).fill.fgColor.rgb) == 'FFC6EFCE':
                 names_days[f'day{x}_night'].append(str(sheet.cell(j, col).value))
     # extract from database
-    shifts = Shift.objects.all().filter(date=organization.date)
-    users = User.objects.all()
+    shifts = Shift.objects.all().filter(organization=organization)
     settings = Settings.objects.all().first()
     max_seq0 = settings.max_seq0
     max_seq1 = settings.max_seq1
     sequence_count = {}
     max_out_names = [[], []]
     for s in shifts:
-        user = users.filter(username=s.username).first()
+        user = s.user
         user_settings = USettings.objects.all().filter(user=user).first()
         name = user_settings.nickname
         sequence_count[f'{name}0'] = s.seq_night
@@ -2149,20 +2111,18 @@ def uplaod_organize(request, organization):
     except:
         before_organization = None
     if before_organization is not None:
-        week_before = Week.objects.all().filter(date=before_organization.date,
-                                                num_week=before_organization.num_weeks - 1).first()
         morning_names = []
         for key in morning_keys:
-            if f'7@{key.title}@{key.id}' in week_before.shifts.keys():
-                morning_names +=  week_before.shifts[f'7@{key.title}@{key.id}'].split("\n")
+            if f'7@{key.id}' in before_organization.weeks_data[str(before_organization.num_weeks - 1)].keys():
+                morning_names +=  before_organization.weeks_data[str(before_organization.num_weeks - 1)][f'7@{key.id}'].split("\n")
         noon_names = []
         for key in noon_keys:
-            if f'7@{key.title}@{key.id}' in week_before.shifts.keys():
-                noon_names += week_before.shifts[f'7@{key.title}@{key.id}'].split("\n")
+            if f'7@{key.id}' in before_organization.weeks_data[str(before_organization.num_weeks - 1)].keys():
+                noon_names += before_organization.weeks_data[str(before_organization.num_weeks - 1)][f'7@{key.id}'].split("\n")
         night_names = []
         for key in night_keys:
-            if f'7@{key.title}@{key.id}' in week_before.shifts.keys():
-                night_names +=  week_before.shifts[f'7@{key.title}@{key.id}'].split("\n")
+            if f'7@{key.id}' in before_organization.weeks_data[str(before_organization.num_weeks - 1)].keys():
+                night_names +=  before_organization.weeks_data[str(before_organization.num_weeks - 1)][f'7@{key.id}'].split("\n")
         before_names = {"motsash": night_names, "noon": noon_names, "morning": morning_names}
         for key in before_names:
             for v in before_names[key]:
@@ -2174,7 +2134,6 @@ def uplaod_organize(request, organization):
                     before_names[key][before_names[key].index(v)] = v.replace("\r", "")
     else:
         before_names = {"motsash": [], "noon": [], "morning": []}
-    weeks = Week.objects.all().filter(date=organization.date).order_by("num_week")
     manager_group = Group.objects.filter(name="manager").first()
     manager_group_users = User.objects.filter(groups=manager_group)
     manager_fields = morning_keys.filter(manager=True)
@@ -2191,7 +2150,7 @@ def uplaod_organize(request, organization):
     for i in range(organization.num_weeks):
         weeks_dicts.append({})
     for i in range(organization.num_weeks):
-        fields = weeks[0].shifts.keys()
+        fields = organization.weeks_data[str(0)].keys()
         for field in fields:
             weeks_dicts[i][field] = ""
     for i in range(organization.num_weeks * 7 - 1, -1, -1):
@@ -2207,7 +2166,7 @@ def uplaod_organize(request, organization):
                 if name in names_days[f'day{names_x}_morning']:
                     for key in manager_fields:
                         if key not in manager_shift_list_put:
-                            weeks_dicts[num_week][f'{x}@{key.title}@{key.id}'] = name
+                            weeks_dicts[num_week][f'{x}@{key.id}'] = name
                             names_days[f'day{names_x}_morning'].remove(name)
                             break
                     count_manager += 1
@@ -2218,7 +2177,7 @@ def uplaod_organize(request, organization):
                 if Settings.objects.last().officer in names_days[f'day{names_x}_morning']:
                     for key in manager_fields:
                         if key not in manager_shift_list_put:
-                            weeks_dicts[num_week][f'{x}@{key.title}@{key.id}'] = Settings.objects.last().officer
+                            weeks_dicts[num_week][f'{x}@{key.id}'] = Settings.objects.last().officer
                             names_days[f'day{names_x}_morning'].remove(Settings.objects.last().officer)
             temp_morning = []
             if len(names_days[f'day{names_x}_morning']) > 0:
@@ -2233,7 +2192,7 @@ def uplaod_organize(request, organization):
                             temp_morning.remove(name)
                 if len(temp_morning) > 0:
                     for key in pull_fields:
-                        inserted = insert_random(weeks_dicts[num_week], temp_morning, f'{key.title}@{key.id}', x, 0)
+                        inserted = insert_random(weeks_dicts[num_week], temp_morning, f'{key.id}', x, 0)
                         names_days[f'day{names_x}_morning'].remove(inserted)
                         temp_morning.remove(inserted)
                 else:
@@ -2249,45 +2208,45 @@ def uplaod_organize(request, organization):
                                 temp_morning.remove(name)
                     if len(temp_morning) > 0:
                         for key in pull_fields:
-                            inserted = insert_random(weeks_dicts[num_week], temp_morning, f'{key.title}@{key.id}', x, 0)
+                            inserted = insert_random(weeks_dicts[num_week], temp_morning, f'{key.id}', x, 0)
                             names_days[f'day{names_x}_morning'].remove(inserted)
                             temp_morning.remove(inserted)
             chosen = False
             if x == 1 and num_week == 0:
                 for key in opening_fields:
                     chosen = search_and_put(weeks_dicts[num_week], before_names["noon"], names_days[f'day{names_x}_morning'], x,
-                                                f'{key.title}@{key.id}', max_out_names[0], 0, sequence_count, max_seq0,
+                                                f'{key.id}', max_out_names[0], 0, sequence_count, max_seq0,
                                                 max_seq1, True, [])
                     if chosen:
-                        opening_shift_list_put.append(f'{key.title}@{key.id}')
+                        opening_shift_list_put.append(f'{key.id}')
                 if not chosen:
                     for key in opening_fields:
                         if key not in opening_shift_list_put:
                             chosen = search_and_put(weeks_dicts[num_week], before_names["morning"], names_days[f'day{names_x}_morning'], x,
-                                                        f'{key.title}@{key.id}', max_out_names[0], 0, sequence_count, max_seq0,
+                                                        f'{key.id}', max_out_names[0], 0, sequence_count, max_seq0,
                                                         max_seq1, True, [])
                             if chosen:
-                                opening_shift_list_put.append(f'{key.title}@{key.id}')
+                                opening_shift_list_put.append(f'{key.id}')
                 if not chosen:
                     temp_morning = seperate_list(names_days[f'day{names_x}_morning'], max_out_names)
                     if len(temp_morning) > 0:
                         for key in opening_fields:
                             if key not in opening_shift_list_put:
-                                chosen = insert_random(weeks_dicts[num_week], temp_morning, f'{key.title}@{key.id}', x, 0)
+                                chosen = insert_random(weeks_dicts[num_week], temp_morning, f'{key.id}', x, 0)
                                 if chosen is not None:
                                     names_days[f'day{names_x}_morning'].remove(chosen)
-                                    opening_shift_list_put.append(f'{key.title}@{key.id}')
+                                    opening_shift_list_put.append(f'{key.id}')
                     else:
                         for key in opening_fields:
                             if key not in opening_shift_list_put:
-                                insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.title}@{key.id}', x, 0)
+                                insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.id}', x, 0)
                 # noon
                 index = 0
                 for key in noon_keys:
                     if index < len(noon_keys) - 1:
-                        insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.title}@{key.id}', x, 0)
+                        insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.id}', x, 0)
                     else:
-                        insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.title}@{key.id}')
+                        insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.id}')
             # morning opening
             else:
                 if x > 2:
@@ -2296,74 +2255,74 @@ def uplaod_organize(request, organization):
                         temp_morning.append(name)
                     for key in opening_fields:
                         chosen = search_and_put(weeks_dicts[num_week], names_days[f'day{names_x - 1}_noon'], names_days[f'day{names_x}_morning']
-                                                    , x, f'{key.title}@{key.id}', max_out_names[1], 1, sequence_count, max_seq0,
+                                                    , x, f'{key.id}', max_out_names[1], 1, sequence_count, max_seq0,
                                                     max_seq1, True, names_days[f'day{names_x - 2}_night'])
                         if chosen:
-                            opening_shift_list_put.append(f'{key.title}@{key.id}')
+                            opening_shift_list_put.append(f'{key.id}')
                 else:
                     for key in opening_fields:
                         chosen = search_and_put(weeks_dicts[num_week], names_days[f'day{names_x - 1}_noon'],
                                                     names_days[f'day{names_x}_morning'], x,
-                                                    f'{key.title}@{key.id}', max_out_names[1], 1, sequence_count, max_seq0,
+                                                    f'{key.id}', max_out_names[1], 1, sequence_count, max_seq0,
                                                     max_seq1, True, [])
                         if chosen:
-                            opening_shift_list_put.append(f'{key.title}@{key.id}')
+                            opening_shift_list_put.append(f'{key.id}')
                 if not chosen:
                     temp_morning = seperate_list(names_days[f'day{names_x}_morning'], max_out_names)
                     if len(temp_morning) > 0:
                         for key in opening_fields:
                             if key not in opening_shift_list_put:
-                                chosen = insert_random(weeks_dicts[num_week], temp_morning, f'{key.title}@{key.id}', x, 0)
+                                chosen = insert_random(weeks_dicts[num_week], temp_morning, f'{key.id}', x, 0)
                                 if chosen is not None:
                                     names_days[f'day{names_x}_morning'].remove(chosen)
-                                    opening_shift_list_put.append(f'{key.title}@{key.id}')
+                                    opening_shift_list_put.append(f'{key.id}')
                     else:
                         for key in opening_fields:
                             if key not in opening_shift_list_put:
-                                insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.title}@{key.id}', x, 0)       
+                                insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.id}', x, 0)       
                 # noon
                 index = 0
                 for key in noon_keys:
                     if index < len(noon_keys) - 1:
-                        insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.title}@{key.id}', x, 0)
+                        insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.id}', x, 0)
                     else:
-                        insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.title}@{key.id}')
+                        insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.id}')
             # morning
             index = 0
             for key in morning_keys:
                 if index < len(morning_keys) - 1:
-                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.title}@{key.id}', x, 0)
+                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.id}', x, 0)
                 else:
-                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], x, f'{key.title}@{key.id}')
+                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], x, f'{key.id}')
             # night
             index = 0
             for key in night_keys:
                 if index < len(night_keys) - 1:
-                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_night'], f'{key.title}@{key.id}', x, 0)
+                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_night'], f'{key.id}', x, 0)
                 else:
-                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_night'], x, f'{key.title}@{key.id}')
+                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_night'], x, f'{key.id}')
         else:
             # noon
             index = 0
             for key in noon_keys:
                 if index < len(noon_keys) - 1:
-                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.title}@{key.id}', x, 0)
+                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.id}', x, 0)
                 else:
-                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.title}@{key.id}')
+                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.id}')
             # morning
             index = 0
             for key in morning_keys:
                 if index < len(morning_keys) - 1:
-                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.title}@{key.id}', x, 0)
+                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], f'{key.id}', x, 0)
                 else:
-                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], x, f'{key.title}@{key.id}')
+                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_morning'], x, f'{key.id}')
             # night
             index = 0
             for key in night_keys:
                 if index < len(night_keys) - 1:
-                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_night'], f'{key.title}@{key.id}', x, 0)
+                    insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_night'], f'{key.id}', x, 0)
                 else:
-                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_night'], x, f'{key.title}@{key.id}')
+                    insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_night'], x, f'{key.id}')
         if days_count == 6:
             num_week -= 1
             days_count = -1
@@ -2442,11 +2401,11 @@ def organization_valid(organization, request):
         input_days[day + "A"] = []
         input_days[day + "N"] = []
         for key in morning_keys:
-            input_days[day + "M"] += organization1[f'{i}@{key.title}@{key.id}'].split("\n")
+            input_days[day + "M"] += organization1[f'{i}@{key.id}'].split("\n")
         for key in noon_keys:
-            input_days[day + "A"] += organization1[f'{i}@{key.title}@{key.id}'].split("\n")
+            input_days[day + "A"] += organization1[f'{i}@{key.id}'].split("\n")
         for key in night_keys:
-            input_days[day + "N"] += organization1[f'{i}@{key.title}@{key.id}'].split("\n")
+            input_days[day + "N"] += organization1[f'{i}@{key.id}'].split("\n")
     for key in input_days:
         for i in range(len(input_days[key])):
             input_days[key][i] = input_days[key][i].replace(" ", "")
@@ -2517,15 +2476,6 @@ def organization_valid(organization, request):
     if valid:
         messages.success(request, translate_text("סידור תקין", request.user, "hebrew"))
 
-# Insert to Week form
-def to_week_form(form, request, j):
-    shift_keys = OrganizationShift.objects.all()
-    shift_data = {}
-    for i in range(1, 8):
-        for key in shift_keys:
-            shift_data[f"{i}@{key.title}@{key.id}"] = request.POST.get(f"day{i}@{key.title}@{key.id}@{j}", "")
-    setattr(form, "shifts", shift_data)
-
 # Check if name apears more than once in list
 def is_more_than_once(list, name):
     num = 0
@@ -2536,6 +2486,16 @@ def is_more_than_once(list, name):
         return True
     return False
 
+# turn array of weeks to full dict
+def weeks_to_served(weeks):
+    served = {}
+    for j in range(len(weeks)):
+        for i in range(1, 8):
+            new_day = i + (7 * j)
+            served[f'M{new_day}'] = weeks[str(j)][f'M{i}']
+            served[f'A{new_day}'] = weeks[str(j)][f'A{i}']
+            served[f'N{new_day}'] = weeks[str(j)][f'N{i}']
+    return served
 
 # Write shifts served data to excel
 def WriteToExcel(served, notes, notes_general, dates, user):
@@ -2790,6 +2750,21 @@ def compare_organizations(served, guards_num, organization, officer, sat_night, 
 # template function filters
 
 @register.filter
+def get_served_week(served, week_num):
+    return served[week_num]
+
+@register.filter
+def get_list_dict_served(served, shift):
+    new_list = []
+    for i in range(1, 8):
+        new_list.append(served[f'{shift}{i}'])
+    return new_list
+
+@register.filter
+def get_string_int(list, string):
+    return list[int(string)]
+
+@register.filter
 def get_arming_name(log, request):
     return log.data[str(request.input_num)]["name"]
 
@@ -2824,7 +2799,7 @@ def order_arming_dict_time(arming):
 @register.filter
 def check_keys(key, dictionary):
     for i in range(1, 8):
-        if f'{i}@{key.title}@{key.id}' in dictionary.keys():
+        if f'{i}@{key.id}' in dictionary.keys():
             return True
     return False
 
@@ -2832,8 +2807,8 @@ def check_keys(key, dictionary):
 def get_week_shift(shift, week):
     shifts = []
     for i in range(1, 8):
-        if f'{i}@{shift.title}@{shift.id}' in week.keys():
-            shifts.append(week[f'{i}@{shift.title}@{shift.id}'])
+        if f'{i}@{shift.id}' in week.keys():
+            shifts.append(week[f'{i}@{shift.id}'])
         else:
             break
     return shifts
@@ -3179,10 +3154,9 @@ def get_days(organization):
 
 @register.filter
 def get_weeks(organization):
-    weeks_obj = Week.objects.all().filter(date=organization.date).order_by("num_week")
     weeks = []
-    for week in weeks_obj:
-        weeks.append(week.shifts)
+    for i in range(organization.num_weeks):
+        weeks.append(organization.weeks_data[str(i)])
     return weeks
 
 

@@ -20,6 +20,9 @@ td, th {
   text-align: center;
 	white-space: pre-line;
 }
+.tableA{
+  max-width: 85px;
+}
 notes{
 	margin-top: 2em;
 	margin-left: 0.5em;

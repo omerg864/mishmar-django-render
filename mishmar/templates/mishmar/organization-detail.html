@@ -31,7 +31,7 @@
         <tr style="align-content: end">
             <td>{{ key.title }} <br> {% if key.sub_title != None %} {{key.sub_title}} {%endif %}</td>
             {% for shift in key|get_week_shift:week %}
-            <td>{{shift}}</td>
+            <td class="tableA">{{shift}}</td>
             {% endfor %}
         </tr>
         {% endif %}

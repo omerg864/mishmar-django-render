@@ -2194,7 +2194,6 @@ def uplaod_organize(request, organization):
                     for key in pull_fields:
                         inserted = insert_random(weeks_dicts[num_week], temp_morning, f'{key.id}', x, 0)
                         names_days[f'day{names_x}_morning'].remove(inserted)
-                        temp_morning.remove(inserted)
                 else:
                     temp_morning = []
                     for name in names_days[f'day{names_x}_morning']:

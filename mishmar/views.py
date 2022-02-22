@@ -2001,7 +2001,6 @@ def already_submitted(user):
             return False
     return True
 
-# 
 
 # Get organization data and return as dictionary
 def get_input(organization):
@@ -2401,6 +2400,16 @@ def insert_random(weeks_dict, list1, time, day, count):
     else:
         return None
 
+# convert day to string day and week
+def num_to_day_and_week(num):
+    days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"]
+    day = num % 7
+    day = days[day]
+    if num % 7 == 0:
+        week = int(num / 7)
+    else:
+        week = int(num / 7) + 1
+    return f'{day} בשבוע ה-{week}'
 
 # Checks if organization is valid
 def organization_valid(organization, request):
@@ -2436,8 +2445,8 @@ def organization_valid(organization, request):
             num_day = num_day.replace("A", "")
             num_day = num_day.replace("N", "")
             num_day = num_day.replace("M", "")
-            message1 = name + " ביום ה-" + num_day + " בשתי משמרות רצופות"
-            message2 = name + " ביום ה-" + num_day + " באותה משמרת פעמיים"
+            message1 = name + " ביום " + num_to_day_and_week(int(num_day)) + " בשתי משמרות רצופות"
+            message2 = name + " ביום " + num_to_day_and_week(int(num_day)) + " באותה משמרת פעמיים"
             day = "day" + num_day
             day_before = "day" + str(int(num_day) - 1)
             day_after = "day" + str(int(num_day) + 1)

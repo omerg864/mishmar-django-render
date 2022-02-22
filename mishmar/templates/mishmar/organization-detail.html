@@ -31,7 +31,7 @@
         <tr style="align-content: end">
             <td>{{ key.title }} <br> {% if key.sub_title != None %} {{key.sub_title}} {%endif %}</td>
             {% for shift in key|get_week_shift:week %}
-            <td class="tableA">{{shift}}</td>
+            <td class="tableA" {% if shift|check_user:request.user %} style="color: #228B22;" {% endif %}>{{shift}}</td>
             {% endfor %}
         </tr>
         {% endif %}

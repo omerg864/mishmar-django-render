@@ -33,7 +33,7 @@ def login(request):
                 auth_login(request, user)
                 return redirect('Home')
         else:
-            messages.warning(request, "שם משתמש או סיסמא לא נכונים")
+            messages.error(request, "שם משתמש או סיסמא לא נכונים")
             return HttpResponseRedirect('/login')
 
     else:
@@ -71,20 +71,17 @@ def register(request, *args, **kwargs):
             new_ip.save()
         pc = int(request.POST.get("pin_code"))
         if pc != pin_code:
-            messages.warning(request, "קוד זיהוי לא נכון")
+            messages.error(request, "קוד זיהוי לא נכון")
         elif User.objects.all().filter(email=request.POST.get("email").lower()).count() > 0:
-            messages.warning(request, "כתובת דואר אלקטרוני קיימת כבר")
+            messages.error(request, "כתובת דואר אלקטרוני קיימת כבר")
         elif form.is_valid():
             form.cleaned_data['email'] = request.POST.get("email").lower()
             form.save(commit=True)
-            username = form.cleaned_data.get("username")
-            messages.success(request, f'{username}נוצר חשבון ל ')
+            full_name = form.cleaned_data.get("first_name") + " " + form.cleaned_data.get("last_name")
+            messages.success(request, f'חשבון נוצר ל{full_name}')
             return redirect("login")
         else:
-            for key in form.errors:
-                print(key)
-                print(_(form.errors[key].as_text()))
-            messages.warning(request, form.errors)
+            messages.error(request, form.errors)
     else:
         form = UserRegisterForm()
     return render(request, "users/register.html", {"form": form, "ban": ban})
@@ -109,15 +106,15 @@ def profile(request):
             email = u_form.cleaned_data.get("email").lower()
             if User.objects.filter(email=email).count() > 0:
                     if request.user != User.objects.filter(email=email).first():
-                        messages.warning(request, f'כתובת דואר אלקטרוני קיימת כבר')
+                        messages.error(request, f'כתובת דואר אלקטרוני קיימת כבר')
                         return redirect("profile")
             u_form.save()
             user_settings.save()
             messages.success(request, f'פרטים עודכנו')
             return redirect("profile")
         else:
-            messages.warning(request, f'פרטים לא עודכנו')
-            messages.warning(request, u_form.errors)
+            messages.error(request, f'פרטים לא עודכנו')
+            messages.error(request, u_form.errors)
             return redirect("profile")
     else:
         u_form = UserUpdateForm(instance=request.user)
@@ -154,10 +151,10 @@ class UserPasswordUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView
                 messages.success(request, f'סיסמא עודכנה')
                 return redirect('/')
             else:
-                messages.warning(request, "סיסמא חייבת להכיל לפחות שמונה תווים מתוכן לפחות אחד מהאותיות האנגליות ומספרים")
+                messages.error(request, "סיסמא חייבת להכיל לפחות שמונה תווים מתוכן לפחות אחד מהאותיות האנגליות ומספרים")
                 return HttpResponseRedirect(request.path_info)
         else:
-            messages.warning(request, 'סיסמאות לא תואמות')
+            messages.error(request, 'סיסמאות לא תואמות')
             return HttpResponseRedirect(request.path_info)
 
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -191,16 +188,16 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 username = request.POST.get(f"username{id}")
                 if User.objects.filter(username=username).count() > 0:
                     if user != User.objects.filter(username=username).first():
-                        messages.warning(request, f'שם משתמש קיים כבר')
+                        messages.error(request, f'שם משתמש קיים כבר')
                         return redirect("user-list")
                 elif re.match(r'^[a-zA-Z0-9_.-]+$', username) == None:
-                    messages.warning(request, f'שם משתמש לא תקין')
+                    messages.error(request, f'שם משתמש לא תקין')
                     return redirect("user-list")
                 user.username = username
                 email = request.POST.get(f"email{id}").lower()
                 if User.objects.filter(email=email).count() > 0:
                     if user != User.objects.filter(email=email).first():
-                        messages.warning(request, f'כתובת דואר אלקטרוני קיימת כבר')
+                        messages.error(request, f'כתובת דואר אלקטרוני קיימת כבר')
                         return redirect("user-list")
                 user.email = email
                 user.first_name = request.POST.get(f"first{id}")
@@ -209,7 +206,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 nickname = request.POST.get(f"nickname{id}")
                 if USettings.objects.filter(nickname=nickname).count() > 0:
                     if user_settings != USettings.objects.filter(nickname=nickname).first():
-                        messages.warning(request, f'כינוי קיים כבר')
+                        messages.error(request, f'כינוי קיים כבר')
                         return redirect("user-list")
                 user_settings.nickname = nickname
                 if request.POST.get(f"staff{id}") != None:

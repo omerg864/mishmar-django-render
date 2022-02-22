@@ -2764,6 +2764,17 @@ def compare_organizations(served, guards_num, organization, officer, sat_night, 
 
 # template function filters
 
+
+@register.filter
+def check_user(shift, user):
+    user_settings = USettings.objects.get(user=user)
+    split = shift.replace("\r", "\n").split("\n")
+    for s in split:
+        s = s.replace(" ", "")
+        if s == user_settings.nickname:
+            return True
+    return False
+
 @register.filter
 def get_served_week(served, week_num):
     return served[week_num]

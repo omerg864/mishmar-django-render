@@ -3,7 +3,7 @@
 {% block content %}
 {% if request.user.username != 'metagber' %}
     <div class="row">
-    <div dir="rtl" style="text-align: right" class="content-section">
+    <div dir="rtl" style="text-align: right;margin-left: 10px" class="content-section">
       <div style="text-align: right" class="media" dir="rtl">
         <img class="rounded-circle account-img" {% if user_settings.image == '' or user_settings.image == None %} src="https://lh3.google.com/u/2/d/1vVnbgNUFZ6PxzhqUnpsXcNif_nJP1YFQ=w1920-h566-iv1" {% else %} src="{{ user_settings.image }}" {% endif %}>
         <div style="text-align: right"  dir="rtl" class="media-body">

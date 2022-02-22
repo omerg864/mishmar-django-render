@@ -124,7 +124,7 @@
                 {% for day_obj in object_list %} 
                 {% for arming in day_obj|arming_day_break %}
             <tr style="align-content: end">
-                {% if user|get_date_arming:day_obj|edit_permission:arming or day_obj|request_permission:arming %}
+                {% if user|get_date_arming:day_obj|edit_permission:arming or request.user|user_and_log:arming|request_permission:day_obj %}
                 <td><select name="shifts{{arming.id}}" id="shifts{{arming.id}}">
                     <option value="1" {% if arming.shift_num == 1 %}selected{% endif %}>בוקר</option>
                     <option value="2" {% if arming.shift_num == 2 %}selected{% endif %}>צהריים</option>
@@ -280,7 +280,11 @@
                 <td>{% if arming.time_out != None %} {{arming.time_out|timestr}} {% else %} <a>אין יציאה</a> {% endif %}</td>
                 <td>{% if arming.signature_out != "" and arming.signature_out != None %}<img id="sig-image" src={{arming.signature_out}} alt="Your signature will go here!" width="100px"/> {% endif %}</td>
                 <td>{% if arming.valid_out != "" and arming.valid_out != None %}<img id="sig-image" src={{arming.valid_out}} alt="Your signature will go here!" width="100px"/> {% endif %}</td>
+                {% if user|is_users_log:arming %}
                 <td><button class="btn btn-info mb-4" type="submit" value="{{arming.id}}" id="change" name="change" disabled>בקשה בתהליך</button></td>
+                {% else %}
+                <td><button class="btn btn-info mb-4" type="submit" value="{{arming.id}}" id="change" name="change" disabled>חתימה</button></td>
+                {% endif %}
                 {% endif %}
             </tr>
             {% endfor %}

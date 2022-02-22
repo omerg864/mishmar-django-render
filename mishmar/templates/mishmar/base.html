@@ -59,9 +59,21 @@
         <div>
             {% if messages %}
             {% for message in messages %}
-              <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-              </div>
+            {% if message.tags != 'error' %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              {{ message }}
+            </div>
+            {% else %}
+            <div class="alert alert-dismissible" style="background-color: #ff3333" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              {{ message }}
+            </div>
+            {% endif %}
             {% endfor %}
           {% endif %}
           {% block content %}{% endblock %}

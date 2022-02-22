@@ -112,6 +112,12 @@ def home(request):
             num_requests = len(armingrequests)
             if num_requests > 0:
                 messages.info(request, f'יש {num_requests} בקשות לשינוי ביומן חימוש')
+        if request.user.groups.filter(name='staff').exists():
+            usage = calculate_usage()
+            if usage[0] >= 9000:
+                messages.error(request, f'כמות נתונים גבוהה מאוד ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
+            elif usage[0] >= 8000:
+                messages.warning(request, f'כמות נתונים גבוהה ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
     context = {
         "posts": posts,
         "profile": profile,
@@ -157,7 +163,7 @@ class ArmingRequestDetailView(UserPassesTestMixin,DetailView):
             log_data["shift_num"] = self.get_object().shift_num
             log_data["time_in"] = self.get_object().time_in
             log_data["time_out"] = self.get_object().time_out
-            log_data["gun_id"] = self.get_object().gun.id
+            log_data["gun_id"] = int(self.get_object().gun.id)
             log_data["gun_case"] = self.get_object().gun_case
             log_data["mag_case"] = self.get_object().mag_case
             log_data["hand_cuffs"] = self.get_object().hand_cuffs
@@ -185,7 +191,7 @@ class ArmingRequestListView(UserPassesTestMixin, ListView):
     model = ArmingRequest
     template_name = 'mishmar/arming_request_list.html'
     context_object_name = 'armingrequests'
-    ordering = ["read"]
+    ordering = ["read", "-log__date"]
     paginate_by = 8
 
     def test_func(self):
@@ -230,7 +236,7 @@ class ArmingRequestView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         new_request = ArmingRequest()
         log = Arming_Log.objects.filter(id=request.session["log_id"]).first()
         new_request.log = log
-        gun_id = request.session["gun_id"]
+        gun_id = int(request.session["gun_id"])
         gun  = Gun.objects.filter(id=gun_id).first()
         new_request.gun = gun
         new_request.shift_num = request.session["shift_num"]
@@ -262,7 +268,7 @@ class ArmingRequestView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             messages.success(request, "הבקשה הועברה בהצלחה")
             return redirect('armingday', year=int(date1.strftime("%Y")), month=date1.strftime("%b"), day=int(date1.strftime("%d")))
         else:
-            messages.info(request, "אנא מלא סיבת שינוי")
+            messages.error(request, "אנא מלא סיבת שינוי")
             return HttpResponseRedirect(request.path_info)
 
 # Arming log Day view
@@ -428,7 +434,7 @@ class ArmingDayView(LoginRequiredMixin, DayArchiveView):
         if shift != 0:
             manager = request.POST.get(f"manager{shift}")
             if manager == "":
-                messages.info(request, translate_text("נא למלא את שם האחמ\"ש", request.user, "hebrew"))
+                messages.error(request, translate_text("נא למלא את שם האחמ\"ש", request.user, "hebrew"))
                 return HttpResponseRedirect(request.path_info)
             val_logs = ValidationLog.objects.all()
             months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -489,10 +495,14 @@ class ArmingLogUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def post(self, request, *args, **kwargs):
         reqtype = request.session["reqtype"]
         session_keyes = ["gun_id", "user_id", "name", "shift_num", "id_num", "time_in", "num_mags", "hand_cuffs", "gun_case", "mag_case", "keys", "radio", "radio_kit", "time_out", "reqtype"]
+        int_keys = ["gun_id", "user_id", "shift_num", "num_mags", "hand_cuffs", "gun_case", "mag_case"]
         log = Arming_Log.objects.filter(id=self.get_object().id).first()
         input_num = request.session["input_num"]
         for i in range(len(session_keyes) - 1):
-            log.data[str(input_num)][f'{session_keyes[i]}'] = request.session[session_keyes[i]]
+            if session_keyes[i] in int_keys:
+                log.data[str(input_num)][f'{session_keyes[i]}'] = int(request.session[session_keyes[i]])
+            else:
+                log.data[str(input_num)][f'{session_keyes[i]}'] = request.session[session_keyes[i]]
         sig_in = request.POST.get('sig-dataUrl')
         sig_out = request.POST.get('sig-dataUrl_out')
         if reqtype == "change manager":
@@ -977,6 +987,9 @@ class OrganizationCreateView(LoginRequiredMixin, CreateView, UserPassesTestMixin
         return isStaff(self.request.user)
 
     def form_valid(self, form):
+        if Organization.objects.all().filter(date=self.request.POST.get("date")).exists():
+            messages.error(self.request, translate_text(f'סידור בתאריך זה כבר קיים', self.request.user, "hebrew"))
+            return redirect("organization-new")
         form.instance.date = self.request.POST.get("date")
         return super().form_valid(form)
 
@@ -1571,8 +1584,14 @@ class OrganizationSuggestionView(LoginRequiredMixin, UserPassesTestMixin, Detail
 def staff_panel_view(request):
     settings = Settings.objects.all().first()
     usage = calculate_usage()
-    if usage[0] >= 8000:
+    if usage[0] >= 9000:
+        messages.error(request, f'כמות נתונים גבוהה מאוד ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
+    elif usage[0] >= 8000:
         messages.warning(request, f'כמות נתונים גבוהה ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
+    armingrequests = ArmingRequest.objects.all().filter(read=False)
+    num_requests = len(armingrequests)
+    if num_requests > 0:
+        messages.info(request, f'יש {num_requests} בקשות לשינוי ביומן חימוש')
     context = {}
     checked = settings.submitting
     if request.method == 'POST':
@@ -1860,7 +1879,6 @@ class IpBanListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
 # Side functions
 
 # get shift served data
-
 def get_data(object):
     ctx = {}
     served = {}
@@ -2920,7 +2938,21 @@ def getday(string):
     return datetime.datetime.now()
 
 @register.filter
-def request_permission(log_obj, log):
+def is_users_log(user, log):
+    if user.id == int(log["user_id"]):
+        return True
+    return False
+
+@register.filter
+def user_and_log(user, log):
+    return [user, log]
+
+@register.filter
+def request_permission(arguments, log_obj):
+    user = arguments[0]
+    log = arguments[1]
+    if user.id != int(log["user_id"]):
+        return False
     armingrequests = ArmingRequest.objects.all().filter(log=log_obj, read=False, input_num=log["id"])
     if len(armingrequests) == 0:
         return True

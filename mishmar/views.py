@@ -333,7 +333,7 @@ class ArmingDayView(LoginRequiredMixin, DayArchiveView):
                 request.session["log_id"] = logs.first().id
             else:
                 request.session["log_id"] = ""
-            messages.success(request, "הנתונים הועברו בהצלחה")
+            messages.info(request, "הנתונים הועברו בהצלחה, יש לחתום כדי לשמור")
             return redirect("arming-new")
         elif "request" in request.POST:
             input_num = request.POST.get("request")
@@ -451,7 +451,7 @@ class ArmingDayView(LoginRequiredMixin, DayArchiveView):
             for key in session_keyes:
                 request.session[key] = request.POST[f"{key}{shift}"]
             request.session["shift"] = shift
-            messages.info(request, " הנתונים הועברו בהצלחה כדי לשמור יש לחתום")
+            messages.info(request, "הנתונים הועברו בהצלחה, יש לחתום בכדי לשמור")
             return redirect("validation-signature")
 
 # Arming log update view

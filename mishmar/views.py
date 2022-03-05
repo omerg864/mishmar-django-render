@@ -2402,7 +2402,7 @@ def insert_random(weeks_dict, list1, time, day, count):
 
 # convert day to string day and week
 def num_to_day_and_week(num):
-    days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"]
+    days = ["שבת", "ראשון", "שני", "שלישי","רביעי", "חמישי", "שישי"]
     day = num % 7
     day = days[day]
     if num % 7 == 0:

@@ -1928,8 +1928,6 @@ def get_data(object):
                 if not shift.weeks_data[str(i)][f'P{j}']:
                     if morning:
                         served[str(i)][f'M{j}'] += "\n" + "(לא משיכה)" + "\n"
-                    else:
-                        served[str(i)][f'M{j}'] += "\n"
                 else:
                     if morning:
                         served[str(i)][f'M{j}'] += "\n"

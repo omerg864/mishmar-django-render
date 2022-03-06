@@ -4,7 +4,6 @@ from datetime import time as Time
 import io
 from pyexpat import model
 import random
-from cv2 import split
 import xlsxwriter as xlsxwriter
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required

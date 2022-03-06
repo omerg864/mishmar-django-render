@@ -4,6 +4,7 @@ from datetime import time as Time
 import io
 from pyexpat import model
 import random
+from cv2 import split
 import xlsxwriter as xlsxwriter
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -1925,10 +1926,14 @@ def get_data(object):
                     morning = True
                     if j < minimum_day_morning:
                         counters[f"M-{name}-{i}"] += 1
-                if not shift.weeks_data[str(i)][f'P{j}'] and morning:
-                    served[str(i)][f'M{j}'] += "\n" + "(לא משיכה)" + "\n"
+                if not shift.weeks_data[str(i)][f'P{j}']:
+                    if morning:
+                        served[str(i)][f'M{j}'] += "\n" + "(לא משיכה)" + "\n"
+                    else:
+                        served[str(i)][f'M{j}'] += "\n"
                 else:
-                    served[str(i)][f'M{j}'] += "\n"
+                    if morning:
+                        served[str(i)][f'M{j}'] += "\n"
                 morning = False
                 if shift.weeks_data[str(i)][f'A{j}']:
                     served[str(i)][f'A{j}'] += name + "\n"

@@ -773,6 +773,9 @@ def shift_view(request):
                     message = translate_text(message, request.user, "hebrew")
                     messages.info(request, message)
     if request.method == 'POST':
+        if not submitting:
+            messages.error(request, "לא ניתן כבר להגיש ולנות משמרות")
+            return redirect('Home')
         if not already_submitted(request.user):
             shift = Shift()
             shift_data_temp = {}

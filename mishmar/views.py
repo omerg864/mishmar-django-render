@@ -774,7 +774,7 @@ def shift_view(request):
                     messages.info(request, message)
     if request.method == 'POST':
         if not submitting:
-            messages.error(request, "לא ניתן כבר להגיש ולנות משמרות")
+            messages.error(request, "לא ניתן כבר להגיש ולשנות משמרות")
             return redirect('Home')
         if not already_submitted(request.user):
             shift = Shift()

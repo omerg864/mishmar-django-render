@@ -174,7 +174,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     
     def post(self, request, *args, **kwargs):
         if request.method == "POST":
-            if request.POST.get("action") == "delete":
+            if 'delete' in request.POST:
                 id = request.POST.get("delete")
                 User.objects.filter(id=id).delete()
                 messages.success(request, f'משתמש נמחק')

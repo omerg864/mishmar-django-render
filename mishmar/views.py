@@ -1025,6 +1025,9 @@ class ShifttableView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         for i in range(self.get_object().num_weeks):
             sum_content[f'morning{i + 1}'] = 0
             sum_content[f'noon{i + 1}'] = 0
+            sum_content[f'pull{i + 1}'] = 0
+            sum_content[f'opening{i + 1}'] = 0
+            sum_content[f'manager{i + 1}'] = 0
         sum_content["night"] = 0
         sum_content["end"] = 0
         for user in users:
@@ -1032,14 +1035,41 @@ class ShifttableView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             for i in range(self.get_object().num_weeks):
                 table_content[user][f'morning{i + 1}'] = 0
                 table_content[user][f'noon{i + 1}'] = 0
+                table_content[user][f'pull{i + 1}'] = 0
+                table_content[user][f'opening{i + 1}'] = 0
+                table_content[user][f'manager{i + 1}'] = 0
             table_content[user]["night"] = 0
             table_content[user]["end"] = 0
         shift_keys = OrganizationShift.objects.all().order_by('shift_num', 'index')
         morning_shifts = shift_keys.filter(shift_num=1)
         noon_shifts = shift_keys.filter(shift_num=2)
         night_shifts = shift_keys.filter(shift_num=3)
+        pull_shifts = shift_keys.filter(pull=True)
+        opening_shifts = shift_keys.filter(opening=True)
+        manager_shifts = shift_keys.filter(manager=True)
         for j in range(self.get_object().num_weeks):
             for i in range(1, 8):
+                for shift in pull_shifts:
+                    split = weeks[j][f'{i}@{shift.id}'].replace("\r", "\n").split("\n")
+                    for s in split:
+                        s = s.replace(" ", "")
+                        if s != "":
+                            table_content[s][f"pull{j + 1}"] += 1
+                            sum_content[f"pull{j + 1}"] += 1
+                for shift in opening_shifts:
+                    split = weeks[j][f'{i}@{shift.id}'].replace("\r", "\n").split("\n")
+                    for s in split:
+                        s = s.replace(" ", "")
+                        if s != "":
+                            table_content[s][f"opening{j + 1}"] += 1
+                            sum_content[f"opening{j + 1}"] += 1
+                for shift in manager_shifts:
+                    split = weeks[j][f'{i}@{shift.id}'].replace("\r", "\n").split("\n")
+                    for s in split:
+                        s = s.replace(" ", "")
+                        if s != "":
+                            table_content[s][f"manager{j + 1}"] += 1
+                            sum_content[f"manager{j + 1}"] += 1
                 for shift in morning_shifts:
                     split = weeks[j][f'{i}@{shift.id}'].replace("\r", "\n").split("\n")
                     for s in split:

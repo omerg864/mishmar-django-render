@@ -31,7 +31,7 @@
                             {% else %}
                             <td style="color: forestgreen">{{ value|get_item:count }}</td>
                             {% endif %}
-                    {% elif "pull" in countor "opening" in count %}
+                    {% elif "pull" in countor or "opening" in count %}
                     {% if value|get_item:count > 1 %}
                             <td style="color: red">{{ value|get_item:count }}</td>
                             {% else %}

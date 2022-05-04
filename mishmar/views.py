@@ -2286,12 +2286,16 @@ def uplaod_organize(request, organization):
                 # noon
                 index = 0
                 for key in noon_keys:
+                    print("1")
                     print(weeks_dicts[num_week])
                     print(names_days[f'day{names_x}_noon'])
                     if index < len(noon_keys) - 1:
                         insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.id}', x, 0)
                     else:
                         insert_all_to_form(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], x, f'{key.id}')
+                    print("2")
+                    print(weeks_dicts[num_week])
+                    print(names_days[f'day{names_x}_noon'])
             # morning opening
             else:
                 if x > 2:

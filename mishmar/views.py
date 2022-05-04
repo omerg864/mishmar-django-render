@@ -2286,6 +2286,8 @@ def uplaod_organize(request, organization):
                 # noon
                 index = 0
                 for key in noon_keys:
+                    print(weeks_dicts[num_week])
+                    print(names_days[f'day{names_x}_noon'])
                     if index < len(noon_keys) - 1:
                         insert_random(weeks_dicts[num_week], names_days[f'day{names_x}_noon'], f'{key.id}', x, 0)
                     else:

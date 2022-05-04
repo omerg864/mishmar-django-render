@@ -2298,6 +2298,7 @@ def uplaod_organize(request, organization):
                     print("2")
                     print(weeks_dicts[num_week])
                     print(names_days[f'day{names_x}_noon'])
+                    index += 1
             # morning opening
             else:
                 if x > 2:

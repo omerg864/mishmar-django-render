@@ -2253,7 +2253,8 @@ def uplaod_organize(request, organization):
                         for key in pull_fields:
                             inserted = insert_random(weeks_dicts[num_week], temp_morning, f'{key.id}', x, 0)
                             names_days[f'day{names_x}_morning'].remove(inserted)
-                            temp_morning.remove(inserted)
+                            if inserted in temp_morning:
+                                temp_morning.remove(inserted)
             chosen = False
             if x == 1 and num_week == 0:
                 for key in opening_fields:
@@ -2432,7 +2433,7 @@ def insert_random(weeks_dict, list1, time, day, count):
             weeks_dict[f'{day}@{time}'] = list1[r]
         else:
             weeks_dict[f'{day}@{time}'] += "\n" + list1[r]
-        return list1[r]
+        return list1.pop(r)
     else:
         return None
 

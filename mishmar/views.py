@@ -2432,7 +2432,7 @@ def insert_random(weeks_dict, list1, time, day, count):
             weeks_dict[f'{day}@{time}'] = list1[r]
         else:
             weeks_dict[f'{day}@{time}'] += "\n" + list1[r]
-        return list1.pop(r)
+        return list1[r]
     else:
         return None
 

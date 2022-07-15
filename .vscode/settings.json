@@ -19,5 +19,8 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "peacock.color": "#2b5797",
-    "docwriter.progress.trackTypes": true
+    "docwriter.progress.trackTypes": true,
+    "cSpell.words": [
+        "mishmar"
+    ]
 }

@@ -138,4 +138,4 @@ os.environ.setdefault('S3_USE_SIGV4', 'True')
 #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
-django_heroku.settings(locals())
+#django_heroku.settings(locals())

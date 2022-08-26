@@ -1396,7 +1396,9 @@ def data_usage_view(request):
     context = {}
     sum_all, logs_sum, shifts_organization_sum, events_sum = calculate_usage()
     ram = psutil.virtual_memory().used
+    print(ram)
     maxMemory = 512 * 1024 * 1024
+    print(maxMemory)
     context = {
         "shifts_organization_sum": shifts_organization_sum,
         "logs_sum": logs_sum,

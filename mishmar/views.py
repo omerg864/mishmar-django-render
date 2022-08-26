@@ -33,6 +33,7 @@ import os
 from django.views.generic.dates import DayArchiveView, MonthArchiveView
 from django.utils import translation
 from .decorators import user_staff_permission
+import psutil
 
 
 
@@ -1394,11 +1395,15 @@ def calculate_usage():
 def data_usage_view(request):
     context = {}
     sum_all, logs_sum, shifts_organization_sum, events_sum = calculate_usage()
+    ram = psutil.virtual_memory().used
+    maxMemory = 512 * 1024 * 1024
     context = {
         "shifts_organization_sum": shifts_organization_sum,
         "logs_sum": logs_sum,
         "sum_all": sum_all,
         "events_sum": events_sum,
+        "ram": ram,
+        "maxMemory": maxMemory
     }
     if request.method == "POST":
         if "org" in request.POST:

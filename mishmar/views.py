@@ -34,6 +34,7 @@ from django.views.generic.dates import DayArchiveView, MonthArchiveView
 from django.utils import translation
 from .decorators import user_staff_permission
 import psutil
+import sys
 
 
 
@@ -117,10 +118,10 @@ def home(request):
                 messages.info(request, f'יש {num_requests} בקשות לשינוי ביומן חימוש')
         if request.user.groups.filter(name='staff').exists():
             usage = calculate_usage()
-            if usage[0] >= 9000:
-                messages.error(request, f'כמות נתונים גבוהה מאוד ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
-            elif usage[0] >= 8000:
-                messages.warning(request, f'כמות נתונים גבוהה ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
+            if usage[4] >= 16:
+                messages.error(request, f'כמות נתונים גבוהה מאוד ({usage[4]}) אנא בצע גיבוי ומחיקת נתונים.')
+            elif usage[4] >= 13:
+                messages.warning(request, f'כמות נתונים גבוהה ({usage[4]}) אנא בצע גיבוי ומחיקת נתונים.')
     context = {
         "posts": posts,
         "profile": profile,
@@ -1376,34 +1377,50 @@ class OrganizationListView(LoginRequiredMixin, ListView):
 
 def calculate_usage():
     shifts_organization_sum = 0
+    mega_sum = 0
     shifts_organization_sum += Shift.objects.all().count()
+    mega_sum += sys.getsizeof(Shift()) * Shift.objects.all().count()
     shifts_organization_sum += Organization.objects.all().count()
+    mega_sum += sys.getsizeof(Organization()) * Organization.objects.all().count()
     logs_sum = 0
     logs_sum += ValidationLog.objects.all().count()
+    mega_sum += sys.getsizeof(ValidationLog()) * ValidationLog.objects.all().count()
     logs_sum += Arming_Log.objects.all().count()
+    mega_sum += sys.getsizeof(Arming_Log()) * Arming_Log.objects.all().count()
     logs_sum += ArmingRequest.objects.all().count()
+    mega_sum += sys.getsizeof(ArmingRequest()) * ArmingRequest.objects.all().count()
     events_sum = Event.objects.all().count()
+    mega_sum += sys.getsizeof(Event()) * Event.objects.all().count()
     sum_all = logs_sum + shifts_organization_sum + 1
     sum_all += User.objects.all().count()
+    mega_sum += sys.getsizeof(User()) * User.objects.all().count()
     sum_all += Group.objects.all().count()
+    mega_sum += sys.getsizeof(Group()) * Group.objects.all().count()
     sum_all += USettings.objects.all().count()
+    mega_sum += sys.getsizeof(USettings()) * USettings.objects.all().count()
     sum_all += Gun.objects.all().count()
+    mega_sum += sys.getsizeof(Gun()) * Gun.objects.all().count()
     sum_all += OrganizationShift.objects.all().count()
+    mega_sum += sys.getsizeof(OrganizationShift()) * OrganizationShift.objects.all().count()
     sum_all += Event.objects.all().count()
     sum_all += Post.objects.all().count()
+    mega_sum += sys.getsizeof(Post()) * Post.objects.all().count()
     sum_all += IpBan.objects.all().count()
-    return [sum_all, logs_sum, shifts_organization_sum, events_sum]
+    mega_sum += sys.getsizeof(IpBan()) * IpBan.objects.all().count()
+    mega_sum = mega_sum / 100000
+    return [sum_all, logs_sum, shifts_organization_sum, events_sum, mega_sum]
 
 
 @user_staff_permission
 def data_usage_view(request):
     context = {}
-    sum_all, logs_sum, shifts_organization_sum, events_sum = calculate_usage()
+    sum_all, logs_sum, shifts_organization_sum, events_sum, mega_sum = calculate_usage()
     context = {
         "shifts_organization_sum": shifts_organization_sum,
         "logs_sum": logs_sum,
         "sum_all": sum_all,
         "events_sum": events_sum,
+        "mega_sum": mega_sum,
     }
     if request.method == "POST":
         if "org" in request.POST:
@@ -1622,10 +1639,10 @@ class OrganizationSuggestionView(LoginRequiredMixin, UserPassesTestMixin, Detail
 def staff_panel_view(request):
     settings = Settings.objects.all().first()
     usage = calculate_usage()
-    if usage[0] >= 9000:
-        messages.error(request, f'כמות נתונים גבוהה מאוד ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
-    elif usage[0] >= 8000:
-        messages.warning(request, f'כמות נתונים גבוהה ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
+    if usage[4] >= 16:
+        messages.error(request, f'כמות נתונים גבוהה מאוד ({usage[4]}) אנא בצע גיבוי ומחיקת נתונים.')
+    elif usage[4] >= 13:
+        messages.warning(request, f'כמות נתונים גבוהה ({usage[4]}) אנא בצע גיבוי ומחיקת נתונים.')
     armingrequests = ArmingRequest.objects.all()
     num_requests = 0
     if len(armingrequests) != 0:

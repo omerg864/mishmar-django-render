@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mishmar.apps.MishmarConfig',
     'users.apps.UsersConfig',
-    'crispy_forms',
+    'crispy_forms'
 ]
 
 MIDDLEWARE = [
@@ -68,13 +68,12 @@ WSGI_APPLICATION = 'mishmardjango.wsgi.application'
 
 DATABASES = {
     'default': {
-            'ENGINE': 'djongo',
-            'NAME': os.environ.get('DB_NAME'),
-            'ENFORCE_SCHEMA': False,
-            'CLIENT': {
-                'host': os.environ.get('DB_HOST')
-            }  
-        }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'), 
+        'USER': os.environ.get('DB_NAME'), 
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+    }
 }
 
 

@@ -68,9 +68,13 @@ WSGI_APPLICATION = 'mishmardjango.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+            'ENGINE': 'djongo',
+            'NAME': os.environ.get('DB_NAME'),
+            'ENFORCE_SCHEMA': False,
+            'CLIENT': {
+                'host': os.environ.get('DB_HOST')
+            }  
+        }
 }
 
 

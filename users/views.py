@@ -21,7 +21,6 @@ import base64
 
 def login(request):
     translation.activate('he')
-    request.session[translation.LANGUAGE_SESSION_KEY] = 'he'
     if request.method == 'POST':
         form = AuthenticationForm(request.POST)
         username = request.POST['username']
@@ -42,7 +41,6 @@ def login(request):
 
 def register(request, *args, **kwargs):
     translation.activate('he')
-    request.session[translation.LANGUAGE_SESSION_KEY] = 'he'
     settings = Settings.objects.first()
     pin_code = int(settings.pin_code)
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -90,7 +88,6 @@ def register(request, *args, **kwargs):
 @login_required
 def profile(request):
     translation.activate('he')
-    request.session[translation.LANGUAGE_SESSION_KEY] = 'he'
     user_settings = USettings.objects.all().filter(user=request.user).first()
     if request.method == "POST":
         u_form = UserUpdateForm(request.POST, instance=request.user)

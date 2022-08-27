@@ -107,10 +107,12 @@ def home(request):
     else:
         profile = None
     posts = Post.objects.all()
-    armingrequests = ArmingRequest.objects.all().filter(read=False)
+    armingrequests = ArmingRequest.objects.all()
     if request.user.is_authenticated:
         if request.user.groups.filter(name='manager').exists():
-            num_requests = len(armingrequests)
+            num_requests = 0
+            if len(armingrequests) != 0:
+                num_requests = len(armingrequests.filter(read=False))
             if num_requests > 0:
                 messages.info(request, f'יש {num_requests} בקשות לשינוי ביומן חימוש')
         if request.user.groups.filter(name='staff').exists():
@@ -283,7 +285,6 @@ class ArmingDayView(LoginRequiredMixin, DayArchiveView):
     def get_context_data(self, **kwargs):
         ctx = super(ArmingDayView, self).get_context_data(**kwargs)
         translation.activate('he')
-        self.request.session[translation.LANGUAGE_SESSION_KEY] = 'he'
         ctx = put_arming_context(ctx)
         user_name = self.request.user.first_name + " " + self.request.user.last_name
         months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -291,8 +292,11 @@ class ArmingDayView(LoginRequiredMixin, DayArchiveView):
         validation_log = ValidationLog.objects.all().filter(date=date1).first()
         ctx["user_name"] = user_name
         ctx["validation_log"] = validation_log
-        armingrequests = ArmingRequest.objects.all().filter(read=False)
-        ctx["num_requests"] = len(armingrequests)
+        armingrequests = ArmingRequest.objects.all()
+        num_requests = 0
+        if len(armingrequests) != 0:
+            num_requests = len(armingrequests.filter(read=False))
+        ctx["num_requests"] = num_requests
         return ctx
     
     def post(self, request, *args, **kwargs):
@@ -1395,17 +1399,11 @@ def calculate_usage():
 def data_usage_view(request):
     context = {}
     sum_all, logs_sum, shifts_organization_sum, events_sum = calculate_usage()
-    ram = psutil.virtual_memory().used
-    print(ram)
-    maxMemory = 512 * 1024 * 1024
-    print(maxMemory)
     context = {
         "shifts_organization_sum": shifts_organization_sum,
         "logs_sum": logs_sum,
         "sum_all": sum_all,
         "events_sum": events_sum,
-        "ram": ram,
-        "maxMemory": maxMemory
     }
     if request.method == "POST":
         if "org" in request.POST:
@@ -1628,8 +1626,10 @@ def staff_panel_view(request):
         messages.error(request, f'כמות נתונים גבוהה מאוד ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
     elif usage[0] >= 8000:
         messages.warning(request, f'כמות נתונים גבוהה ({usage[0]}) אנא בצע גיבוי ומחיקת נתונים.')
-    armingrequests = ArmingRequest.objects.all().filter(read=False)
-    num_requests = len(armingrequests)
+    armingrequests = ArmingRequest.objects.all()
+    num_requests = 0
+    if len(armingrequests) != 0:
+        num_requests = len(armingrequests.filter(read=False))
     if num_requests > 0:
         messages.info(request, f'יש {num_requests} בקשות לשינוי ביומן חימוש')
     context = {}
@@ -1673,6 +1673,10 @@ def organization_shift_view(request):
         if 'add' in request.POST or 'change' in request.POST:
             if 'add' in request.POST:
                 shift = OrganizationShift()
+                if len(OrganizationShift.objects.all()) == 0:
+                    shift.id = 1
+                else:
+                    shift.id = OrganizationShift.objects.all().last().id + 1
                 shift_id = ""
             else:
                 shift_id = request.POST.get('change')
@@ -1680,7 +1684,7 @@ def organization_shift_view(request):
             shift.shift_num = request.POST.get(f"shift_num{shift_id}")
             shift.index = int(request.POST.get(f"index_num{shift_id}"))
             shift.title = request.POST.get(f"title{shift_id}")
-            shift.sub_title = request.POST.get(f"sub_title{shift_id}")
+            shift.sub_title = request.POST.get(f"sub_title{shift_id}", "")
             shift.opening = checkbox(request.POST.get(f"opening{shift_id}"))
             shift.manager = checkbox(request.POST.get(f"manager{shift_id}"))
             shift.pull = checkbox(request.POST.get(f"pull{shift_id}"))
@@ -1692,6 +1696,10 @@ def organization_shift_view(request):
                         s.index = index_temp + 1
                         s.save()
                         index_temp += 1
+            print(shift.id)
+            print(shift.shift_num)
+            print(shift.index)
+            print(shift.opening)
             shift.save()
             if 'add' in request.POST:
                 messages.success(request, "נוסף בהצלחה")
@@ -3017,8 +3025,10 @@ def request_permission(arguments, log_obj):
     log = arguments[1]
     if user.id != int(log["user_id"]):
         return False
-    armingrequests = ArmingRequest.objects.all().filter(log=log_obj, read=False, input_num=log["id"])
+    armingrequests = ArmingRequest.objects.all()
     if len(armingrequests) == 0:
+        return True
+    elif len(armingrequests.filter(log=log_obj, read=False, input_num=log["id"])) == 0:
         return True
     return False
 

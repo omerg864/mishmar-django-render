@@ -2903,7 +2903,10 @@ def get_week_shift(shift, week):
 @register.filter
 def get_city(string):
     settings = Settings.objects.all()
-    return settings.first().city
+    try:
+        return settings.first().city
+    except:
+        return ""
 
 @register.filter
 def validation_log_check(log, shift):

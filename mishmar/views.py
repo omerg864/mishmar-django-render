@@ -33,7 +33,6 @@ import os
 from django.views.generic.dates import DayArchiveView, MonthArchiveView
 from django.utils import translation
 from .decorators import user_staff_permission
-import psutil
 import sys
 
 
